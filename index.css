@@ -1,0 +1,94 @@
+/*
+Copyright (c) 2020 Ivan Teplov
+Licensed under the Apache license 2.0
+*/
+
+:root {
+	--default-margin: 0.5rem;
+	--background-color: white;
+	--text-color: black;
+	--main-color: #ef2b2b;
+	--main-color-darken: #c81717;
+	--default-transition-duration: 0.2s;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--background-color: black;
+		--text-color: white;
+		--main-color: #e21b1b;
+	}
+}
+
+* {
+	margin: 0;
+	padding: 0;
+}
+
+html,
+body {
+	height: 100%;
+}
+
+body {
+	color: var(--text-color);
+	background-color: var(--background-color);
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+	font-size: 18px;
+}
+
+#app {
+	min-height: 100%;
+	justify-content: space-around;
+	align-items: center;
+}
+
+#app h1 {
+	font-size: 4rem;
+}
+
+.column {
+	display: flex;
+	flex-direction: column;
+}
+
+.row {
+	display: flex;
+	flex-direction: row;
+}
+
+#state-container {
+	align-items: center;
+}
+
+#state {
+	margin-bottom: var(--default-margin);
+	font-size: 2rem;
+}
+
+#time {
+	font-size: 3rem;
+	font-weight: 600;
+	letter-spacing: 0.2rem;
+}
+
+button {
+	border: 0;
+	background: none;
+	padding: calc(var(--default-margin) * 2);
+	color: var(--main-color);
+	font-size: 1.25rem;
+	cursor: pointer;
+	outline: none;
+	border-radius: 10px;
+	transition: var(--default-transition-duration) color;
+}
+
+button:hover {
+	color: var(--main-color-darken);
+}
+
+#buttons-row > button {
+	margin: 0 var(--default-margin);
+	min-width: 8ch;
+}
