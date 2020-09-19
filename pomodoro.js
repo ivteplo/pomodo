@@ -46,8 +46,10 @@ document.addEventListener("DOMContentLoaded", function () {
   // Adding event listener for clicking at skip button
   skipButton.addEventListener("click", () => {
     setIsWorking(!isWorking)
-    setTimeLeft(isWorking ? workingTime : -1)
     setIsPaused(true)
+    if (isWorking) {
+      setTimeLeft(workingTime)
+    }
   })
 
   // Function to set working state and update the state shown
@@ -59,11 +61,15 @@ document.addEventListener("DOMContentLoaded", function () {
       resetButton.setAttribute("disabled", true)
 
       if (areNotificationsAllowed) {
-        new Notification("Yoo!", {
-          body: "It's time for a break",
-          icon: "icon72.png",
-        })
+        setTimeout(() => {
+          new Notification("Yoo!", {
+            body: "It's time for a break",
+            icon: "icon72.png",
+          })
+        }, 100)
       }
+
+      setTimeLeft(-1)
     } else {
       resetButton.removeAttribute("disabled")
     }
