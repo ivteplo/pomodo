@@ -4,12 +4,12 @@
 //
 
 document.addEventListener("DOMContentLoaded", function () {
-  const $pauseStartButton = document.querySelector("#pause-start")
-  const $resetButton = document.querySelector("#reset")
-  const $skipButton = document.querySelector("#skip")
-  const $yooAudio = document.querySelector("#yoo-audio")
-  const $state = document.querySelector("#state")
-  const $time = document.querySelector("#time")
+  const pauseStartButton = document.querySelector("#pause-start")
+  const resetButton = document.querySelector("#reset")
+  const skipButton = document.querySelector("#skip")
+  const yooAudio = document.querySelector("#yoo-audio")
+  const state = document.querySelector("#state")
+  const time = document.querySelector("#time")
 
   var workingTime = 1500
 
@@ -20,8 +20,15 @@ document.addEventListener("DOMContentLoaded", function () {
   var isPaused = true
   var interval = -1
 
+  var areNotificationsAllowed = false
+
   // Adding event listener for clicking at pause/start button
-  $pauseStartButton.addEventListener("click", () => {
+  pauseStartButton.addEventListener("click", () => {
+    setTimeout(async () => {
+      areNotificationsAllowed =
+        (await Notification.requestPermission()) === "granted"
+    }, 1000)
+
     if (!isWorking) {
       setIsWorking(true)
       setTimeLeft(workingTime)
@@ -31,13 +38,13 @@ document.addEventListener("DOMContentLoaded", function () {
   })
 
   // Adding event listener for clicking at reset button
-  $resetButton.addEventListener("click", () => {
+  resetButton.addEventListener("click", () => {
     setIsPaused(true)
     setTimeLeft(workingTime)
   })
 
   // Adding event listener for clicking at skip button
-  $skipButton.addEventListener("click", () => {
+  skipButton.addEventListener("click", () => {
     setIsWorking(!isWorking)
     setTimeLeft(isWorking ? workingTime : -1)
     setIsPaused(true)
@@ -48,10 +55,17 @@ document.addEventListener("DOMContentLoaded", function () {
     isWorking = boolean
 
     if (!isWorking) {
-      $yooAudio.play()
-      $resetButton.setAttribute("disabled", true)
+      yooAudio.play()
+      resetButton.setAttribute("disabled", true)
+
+      if (areNotificationsAllowed) {
+        new Notification("Yoo!", {
+          body: "It's time for a break",
+          icon: "icon72.png",
+        })
+      }
     } else {
-      $resetButton.removeAttribute("disabled")
+      resetButton.removeAttribute("disabled")
     }
 
     displayCurrentState()
@@ -68,10 +82,10 @@ document.addEventListener("DOMContentLoaded", function () {
     isPaused = boolean
 
     if (isPaused) {
-      $pauseStartButton.removeAttribute("data-started")
+      pauseStartButton.removeAttribute("data-started")
       clearInterval(interval)
     } else {
-      $pauseStartButton.setAttribute("data-started", true)
+      pauseStartButton.setAttribute("data-started", true)
       startInterval()
     }
   }
@@ -90,7 +104,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Function that updates state on the screen (Working/Yoo)
   function displayCurrentState() {
-    $state.innerHTML = isWorking ? "Working" : "Yoo!"
+    state.innerHTML = isWorking ? "Working" : "Yoo!"
   }
 
   // Function that updates time on the screen
@@ -98,9 +112,9 @@ document.addEventListener("DOMContentLoaded", function () {
     if (timeLeft >= 0) {
       const minutes = toTwoDigitString(Math.floor(timeLeft / 60))
       const seconds = toTwoDigitString(timeLeft % 60)
-      $time.innerHTML = `${minutes}:${seconds}`
+      time.innerHTML = `${minutes}:${seconds}`
     } else {
-      $time.innerHTML = "&nbsp;"
+      time.innerHTML = "&nbsp;"
     }
   }
 
