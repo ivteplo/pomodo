@@ -3,87 +3,110 @@
 // Licensed under the Apache license 2.0
 //
 
-var $state = document.querySelector("#state")
-var $time = document.querySelector("#time")
-var $pauseStartButton = document.querySelector("#pause-start")
-var $resetButton = document.querySelector("#reset")
-var $skipButton = document.querySelector("#skip")
+document.addEventListener("DOMContentLoaded", function () {
+  const $pauseStartButton = document.querySelector("#pause-start")
+  const $resetButton = document.querySelector("#reset")
+  const $skipButton = document.querySelector("#skip")
+  const $yooAudio = document.querySelector("#yoo-audio")
+  const $state = document.querySelector("#state")
+  const $time = document.querySelector("#time")
 
-var time = {
-	minutes: 25,
-	seconds: 0
-}
+  var workingTime = 1500
 
-var state = "Working"
-var paused = true
-var interval = null
+  // time left (in seconds)
+  var timeLeft = workingTime
 
-$pauseStartButton.addEventListener("click", () => {
-	paused = !paused
-	
-	if (!paused) {
-		$pauseStartButton.innerHTML = "Pause"
-		startInterval()
-	} else {
-		$pauseStartButton.innerHTML = "Start"
-		clearInterval(interval)
-	}
+  var isWorking = true
+  var isPaused = true
+  var interval = -1
+
+  // Adding event listener for clicking at pause/start button
+  $pauseStartButton.addEventListener("click", () => {
+    if (!isWorking) {
+      setIsWorking(true)
+      setTimeLeft(workingTime)
+    }
+
+    setIsPaused(!isPaused)
+  })
+
+  // Adding event listener for clicking at reset button
+  $resetButton.addEventListener("click", () => {
+    setIsPaused(true)
+    setTimeLeft(workingTime)
+  })
+
+  // Adding event listener for clicking at skip button
+  $skipButton.addEventListener("click", () => {
+    setIsWorking(!isWorking)
+    setTimeLeft(isWorking ? workingTime : -1)
+    setIsPaused(true)
+  })
+
+  // Function to set working state and update the state shown
+  function setIsWorking(boolean) {
+    isWorking = boolean
+
+    if (!isWorking) {
+      $yooAudio.play()
+      $resetButton.setAttribute("disabled", true)
+    } else {
+      $resetButton.removeAttribute("disabled")
+    }
+
+    displayCurrentState()
+  }
+
+  // Function to set time left and update the time shown
+  function setTimeLeft(number) {
+    timeLeft = number
+    displayCurrentTime()
+  }
+
+  // Function to set paused state
+  function setIsPaused(boolean) {
+    isPaused = boolean
+
+    if (isPaused) {
+      $pauseStartButton.removeAttribute("data-started")
+      clearInterval(interval)
+    } else {
+      $pauseStartButton.setAttribute("data-started", true)
+      startInterval()
+    }
+  }
+
+  // Function that starts countdown
+  function startInterval() {
+    interval = setInterval(() => {
+      setTimeLeft(timeLeft - 1)
+
+      if (timeLeft < 0) {
+        setIsWorking(false)
+        setIsPaused(true)
+      }
+    }, 1000)
+  }
+
+  // Function that updates state on the screen (Working/Yoo)
+  function displayCurrentState() {
+    $state.innerHTML = isWorking ? "Working" : "Yoo!"
+  }
+
+  // Function that updates time on the screen
+  function displayCurrentTime() {
+    if (timeLeft >= 0) {
+      const minutes = toTwoDigitString(Math.floor(timeLeft / 60))
+      const seconds = toTwoDigitString(timeLeft % 60)
+      $time.innerHTML = `${minutes}:${seconds}`
+    } else {
+      $time.innerHTML = "&nbsp;"
+    }
+  }
+
+  // Function to convert number to two-digit-long string
+  function toTwoDigitString(number) {
+    var string = number.toString()
+    return string.length === 2 ? string : "0" + string
+  }
 })
-
-$resetButton.addEventListener("click", () => {
-	changeState()
-	changeState()
-})
-
-$skipButton.addEventListener("click", () => {
-	changeState()
-})
-
-function startInterval() {
-	interval = setInterval(() => {
-		time.seconds -= 1
-		
-		if (time.seconds < 0) {
-			time.minutes -= 1
-			time.seconds = 59
-		}
-		
-		if (time.minutes < 0) {
-			changeState()
-		} else {
-			$time.innerHTML = getTimeString()
-		}
-	}, 1000)
-}
-
-function changeState() {
-	switch (state) {
-		case "Working":
-			state = "Break"
-			time = { minutes: 5, seconds: 0 }
-			break
-		default:
-			state = "Working"
-			time = { minutes: 25, seconds: 0 }
-			break
-	}
-	
-	$state.innerHTML = state
-	$time.innerHTML = getTimeString()
-}
-
-function getTimeString() {
-	let { minutes, seconds } = time
-	minutes = minutes.toString()
-	seconds = seconds.toString()
-	
-	if (minutes.length === 1) {
-		minutes = "0" + minutes
-	}
-	
-	if (seconds.length === 1) {
-		seconds = "0" + seconds
-	}
-	
-	return `${minutes}:${seconds}`
-}

@@ -4,35 +4,56 @@ Licensed under the Apache license 2.0
 -->
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<title>PomoDo</title>
-		<link rel="stylesheet" href="index.css">
-		<meta name="theme-color" content="#ef2b2b">
-		<link rel="manifest" href="manifest.webmanifest">
-		<link rel="shortcut icon" href="icon72.png">
-	</head>
-	<body>
-		<div id="app" class="column">
-			<h1>🍅</h1>
-			<div id="state-container" class="column">
-				<span id="state">Working</span>
-				<strong id="time">25:00</strong>
-			</div>
-			<div class="row" id="buttons-row">
-				<button id="pause-start" type="button">Start</button>
-				<button id="reset" type="button">Reset</button>
-				<button id="skip" type="button">Skip</button>
-			</div>
-		</div>
-		<script src="pomodoro.js"></script>
-		<script>
-			if ("serviceWorker" in navigator) {
-				navigator.serviceWorker.register("./service-worker.js", registration => {
-					console.log("Service worker registered successfully with scope: ", registration.scope)
-				})
-			}
-		</script>
-	</body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PomoDo</title>
+    <meta name="theme-color" content="#ef2b2b" />
+    <!-- Font Awesome CDN -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css"
+      integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog=="
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="index.css" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="shortcut icon" href="icon72.png" />
+  </head>
+  <body>
+    <div id="app" class="column">
+      <h1>🍅</h1>
+      <div id="state-container" class="column">
+        <span id="state">Working</span>
+        <strong id="time">25:00</strong>
+      </div>
+      <div class="row" id="buttons-row">
+        <button id="pause-start" type="button">
+          <i class="fas fa-play"></i>
+          <i class="fas fa-pause"></i>
+        </button>
+        <button id="reset" type="button">
+          <i class="fas fa-undo"></i>
+        </button>
+        <button id="skip" type="button">
+          <i class="fas fa-forward"></i>
+        </button>
+      </div>
+    </div>
+    <audio id="yoo-audio" src="yoo.mp3"></audio>
+    <script src="pomodoro.js"></script>
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register(
+          "./service-worker.js",
+          (registration) => {
+            console.log(
+              "Service worker registered successfully with scope: ",
+              registration.scope
+            )
+          }
+        )
+      }
+    </script>
+  </body>
 </html>
