@@ -6,10 +6,14 @@
 document.addEventListener("DOMContentLoaded", function () {
   const pauseStartButton = document.querySelector("#pause-start")
   const resetButton = document.querySelector("#reset")
+  const pomodoro = document.querySelector("#pomodoro")
   const skipButton = document.querySelector("#skip")
   const yooAudio = document.querySelector("#yoo-audio")
   const state = document.querySelector("#state")
   const time = document.querySelector("#time")
+
+  var notificationsList = []
+  var hideNotificationDuration = 7000
 
   var workingTime = 1500
 
@@ -20,33 +24,55 @@ document.addEventListener("DOMContentLoaded", function () {
   var isPaused = true
   var interval = -1
 
-  var areNotificationsAllowed = false
+  var cookies = parseCookies()
+  var isUserNew = "new" in cookies ? cookies.new === "true" : true
+  var areNotificationsAllowed = "notificationson" in cookies ? cookies.notificationson : null
+
+  if (isUserNew) {
+    showMessageBox("info", "Welcome", "Thanks for using PomoDo!")
+    showMessageBox("info", "Changing the pomodoro duration", "Click at the tomato to change the pomodoro duration")
+
+    setCookie(cookies, "new", false)
+  }
+
+  // Adding event listener for clicking at pomodoro (it changes working time duration)
+  pomodoro.addEventListener("click", function () {
+    setWorkingTimeTo(workingTime === 1500 ? 3000 : 1500)
+  })
 
   // Adding event listener for clicking at pause/start button
-  pauseStartButton.addEventListener("click", () => {
-    setTimeout(async () => {
-      areNotificationsAllowed =
-        (await Notification.requestPermission()) === "granted"
-    }, 1000)
-
-    if (!isWorking) {
-      setIsWorking(true)
-      setTimeLeft(workingTime)
+  pauseStartButton.addEventListener("click", function () {
+    if (areNotificationsAllowed === null) {
+      setTimeout(async function () {
+        areNotificationsAllowed =
+          (await Notification.requestPermission()) === "granted"
+        setCookie(cookies, "notificationson", areNotificationsAllowed)
+      }, 1000)
     }
 
-    setIsPaused(!isPaused)
+    if (!isWorking) {
+      setTimeLeft(workingTime)
+      setIsWorking(true)
+    } else {
+      setIsPaused(!isPaused)
+    }
+
+    if (!isPaused && isWorking && timeLeft === workingTime) {
+      showMessageBox("success", "Working time", "Good luck!")
+    }
   })
 
   // Adding event listener for clicking at reset button
-  resetButton.addEventListener("click", () => {
+  resetButton.addEventListener("click", function () {
     setIsPaused(true)
     setTimeLeft(workingTime)
   })
 
   // Adding event listener for clicking at skip button
-  skipButton.addEventListener("click", () => {
+  skipButton.addEventListener("click", function () {
     setIsWorking(!isWorking)
     setIsPaused(true)
+
     if (isWorking) {
       setTimeLeft(workingTime)
     }
@@ -59,6 +85,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!isWorking) {
       yooAudio.play()
       resetButton.setAttribute("disabled", true)
+      showMessageBox("success", "Yoo!", "It's time for a break")
 
       if (areNotificationsAllowed) {
         setTimeout(() => {
@@ -83,6 +110,16 @@ document.addEventListener("DOMContentLoaded", function () {
     displayCurrentTime()
   }
 
+  // Function to configure working time duration
+  function setWorkingTimeTo(number) {
+    if (!isWorking || (timeLeft === workingTime && isPaused)) {
+      workingTime = number
+      setTimeLeft(workingTime)
+    }
+
+    showMessageBox("info", "Updated working time", "You have changed the pomodoro duration")
+  }
+
   // Function to set paused state
   function setIsPaused(boolean) {
     isPaused = boolean
@@ -98,7 +135,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Function that starts countdown
   function startInterval() {
-    interval = setInterval(() => {
+    interval = setInterval(function () {
       setTimeLeft(timeLeft - 1)
 
       if (timeLeft < 0) {
@@ -118,7 +155,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (timeLeft >= 0) {
       const minutes = toTwoDigitString(Math.floor(timeLeft / 60))
       const seconds = toTwoDigitString(timeLeft % 60)
-      time.innerHTML = `${minutes}:${seconds}`
+      time.innerHTML = minutes + ":" + seconds
     } else {
       time.innerHTML = "&nbsp;"
     }
@@ -128,5 +165,84 @@ document.addEventListener("DOMContentLoaded", function () {
   function toTwoDigitString(number) {
     var string = number.toString()
     return string.length === 2 ? string : "0" + string
+  }
+
+  // Function to show message box
+  function showMessageBox(type, title, message) {
+    var infoBox = document.createElement("div")
+
+    if ("classList" in infoBox) {
+      infoBox.classList.add("message-box")
+      infoBox.classList.add(type)
+    } else {
+      infoBox.className = 'message-box ' + type
+    }
+
+    infoBox.innerHTML = '<div class="message-box-title"><strong>' + title + '</strong></div>' +
+      '<div class="message-box-message">' + message + '</div>'
+
+    document.querySelector("#app #message-boxes-list").appendChild(infoBox)
+
+    const getRemoveNodeFunc = function(infoBox) {
+      return function () {
+        for (let [index, [ node, timeout ]] of Object.entries(notificationsList)) {
+          if (node === infoBox) {
+            notificationsList.splice(index, 1)
+            break
+          }
+        }
+
+        infoBox.style.animation = "message-box-closing-animation var(--default-transition-duration) var(--default-transition-easing) both"
+
+        setTimeout(function() {
+          infoBox.parentNode.removeChild(infoBox)
+        }, 201)
+      }
+    }
+
+    notificationsList.push([ infoBox, null ])
+
+    notificationsList.forEach(([ node, timeout ], index) => {
+      clearTimeout(timeout)
+      setTimeout(getRemoveNodeFunc(node), (index + 1) * hideNotificationDuration)
+    })
+  }
+
+  // Function to parse cookies
+  function parseCookies() {
+    if ("cookie" in document) {
+      let array = document.cookie.split(";").map(function (item) {
+        return item.split("=").map(function (item) {
+          return item.trim()
+        })
+      }).filter(function (item) {
+        return item[0] && item[1]
+      })
+
+      let cookies = {}
+
+      for (let [key, value] of array) {
+        cookies[key] = value
+      }
+
+      return cookies
+    }
+
+    return {}
+  }
+
+  // Function to set cookie
+  function setCookie(cookie, key, value) {
+    cookie[key] = value
+
+    if ("cookie" in document) {
+      let cookiesString = ""
+
+      for (let key in cookie) {
+        cookiesString += key + "=" + cookie[key]
+      }
+
+      document.cookie = cookiesString
+    }
   }
 })
