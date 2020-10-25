@@ -258,9 +258,46 @@ button:disabled {
   }
 
   #app #message-boxes-list .message-box {
-    right: 0;
-    bottom: 0;
     width: var(--desktop-message-box-width);
     position: relative;
+    margin-top: var(--default-margin);
   }
 }
+
+@media (max-height: 299px) {
+  #app #message-boxes-list {
+    display: none;
+  }
+
+  #app {
+    flex-direction: row;
+    justify-content: flex-start;
+  }
+
+  #app h1 {
+    font-size: 2rem;
+    padding: var(--default-margin);
+    margin: 0 calc(var(--default-margin) * 3);
+  }
+
+  #state {
+    font-size: 1.5rem;
+  }
+
+  #time {
+    font-size: 2rem;
+  }
+
+  #state-container {
+    align-items: flex-start;
+    justify-content: center;
+    flex-grow: 1;
+  }
+
+  #buttons-row {
+    width: auto;
+  }
+}
+
+
+
