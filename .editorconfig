@@ -8,5 +8,5 @@ end_of_line = lf
 trim_trailing_whitespace = false
 insert_final_newline = false
 
-[*.{js,html,css}]
+[*.{js,html,css,vue}]
 indent_size = 2
