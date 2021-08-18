@@ -14,13 +14,7 @@ const twoDigitNumber = (number) =>
 
 var state = reactive(loadState())
 
-var sendNotification = (title, description) => {
-  new Notification(title, {
-    body: description,
-    icon: "/favicon.ico",
-    sound: "default",
-  })
-}
+var sendNotification = () => {}
 
 export default {
   data() {
@@ -58,6 +52,10 @@ export default {
       if (!this.isPaused) {
         this.startTimer()
       }
+    },
+    timerClicked() {
+      this.toggle()
+      this.setupNotifications()
     },
     startTimer() {
       const requestAnimationFrame =
@@ -117,16 +115,21 @@ export default {
       state.durations[mode] = +duration * 60
       saveState(state)
     },
-  },
+    async setupNotifications() {
+      if (Notification.permission === "default") {
+        await Notification.requestPermission()
+      }
 
-  async mounted() {
-    if (Notification.permission === "default") {
-      await Notification.requestPermission()
-    }
-
-    if (Notification.permission !== "granted") {
-      sendNotification = (title, description) => {}
-    }
+      if (Notification.permission === "granted") {
+        sendNotification = (title, description) => {
+          new Notification(title, {
+            body: description,
+            icon: "/favicon.ico",
+            sound: "default",
+          })
+        }
+      }
+    },
   },
 }
 </script>
@@ -160,7 +163,7 @@ export default {
     </div>
   </header>
 
-  <Timer :time="timeLeftString" :isPaused="isPaused" @click="toggle()" />
+  <Timer :time="timeLeftString" :isPaused="isPaused" @click="timerClicked()" />
 
   <button
     type="button"
