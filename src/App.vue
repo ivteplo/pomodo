@@ -165,15 +165,11 @@ export default {
 
   <Timer :time="timeLeftString" :isPaused="isPaused" @click="timerClicked()" />
 
-  <button
-    type="button"
-    class="settings-button"
-    @click="this.areSettingsOpen = true"
-  >
+  <button type="button" class="settings-button" @click="areSettingsOpen = true">
     Settings
   </button>
 
-  <Modal v-if="this.areSettingsOpen" @close="this.areSettingsOpen = false">
+  <Modal v-if="areSettingsOpen" @close="areSettingsOpen = false">
     <template v-slot:header>
       <h2>Settings</h2>
     </template>
