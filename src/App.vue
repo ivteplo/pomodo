@@ -169,48 +169,59 @@ export default {
     Settings
   </button>
 
-  <Modal v-if="areSettingsOpen" @close="areSettingsOpen = false">
-    <template v-slot:header>
-      <h2>Settings</h2>
-    </template>
-    <template v-slot:body>
-      <div class="column settings">
-        <div class="column setting">
-          <h3>Focus timer duration (in minutes)</h3>
-          <input
-            type="number"
-            min="10"
-            max="120"
-            :value="durations.focus / 60"
-            @change="setDuration('focus', $event.target.value)"
-          />
+  <transition name="fade">
+    <Modal v-if="areSettingsOpen" @close="areSettingsOpen = false">
+      <template v-slot:header>
+        <h2>Settings</h2>
+      </template>
+      <template v-slot:body>
+        <div class="column settings">
+          <div class="column setting">
+            <h3>Focus timer duration (in minutes)</h3>
+            <input
+              type="number"
+              min="10"
+              max="120"
+              :value="durations.focus / 60"
+              @change="setDuration('focus', $event.target.value)"
+            />
+          </div>
+          <div class="column setting">
+            <h3>Short break duration (in minutes)</h3>
+            <input
+              type="number"
+              min="5"
+              max="15"
+              :value="durations.shortBreak / 60"
+              @change="setDuration('shortBreak', $event.target.value)"
+            />
+          </div>
+          <div class="column setting">
+            <h3>Long break duration (in minutes)</h3>
+            <input
+              type="number"
+              min="10"
+              max="60"
+              :value="durations.longBreak / 60"
+              @change="setDuration('longBreak', $event.target.value)"
+            />
+          </div>
         </div>
-        <div class="column setting">
-          <h3>Short break duration (in minutes)</h3>
-          <input
-            type="number"
-            min="5"
-            max="15"
-            :value="durations.shortBreak / 60"
-            @change="setDuration('shortBreak', $event.target.value)"
-          />
-        </div>
-        <div class="column setting">
-          <h3>Long break duration (in minutes)</h3>
-          <input
-            type="number"
-            min="10"
-            max="60"
-            :value="durations.longBreak / 60"
-            @change="setDuration('longBreak', $event.target.value)"
-          />
-        </div>
-      </div>
-    </template>
-  </Modal>
+      </template>
+    </Modal>
+  </transition>
 </template>
 
 <style>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.25s;
+}
+
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}
+
 #app {
   -webkit-tap-highlight-color: transparent;
   user-select: none;
@@ -266,10 +277,6 @@ export default {
 .status-buttons > button.selected:hover {
   color: var(--background);
   background-color: var(--primary-100);
-}
-
-.settings-button {
-  /* margin-top: 5rem; */
 }
 
 .settings {

@@ -1,31 +1,29 @@
 // Copyright (c) 2021 Ivan Zadvornov
 
 <template>
-  <teleport to="#app-modals">
-    <div class="modal-wrapper column">
-      <div class="modal column">
-        <header class="row">
-          <slot name="header"><h2>This is a modal</h2></slot>
-          <div class="controls">
-            <button type="button" role="navigation" @click="emit('close')">
-              Close
-            </button>
-          </div>
-        </header>
-        <main>
-          <slot name="body"></slot>
-        </main>
-      </div>
-      <div class="modal-blur-background" @click="emit('close')"></div>
+  <div class="modal-wrapper column">
+    <div class="modal column">
+      <header class="row">
+        <slot name="header"><span></span></slot>
+        <div class="controls">
+          <button type="button" role="navigation" @click="close()">
+            Close
+          </button>
+        </div>
+      </header>
+      <main>
+        <slot name="body"></slot>
+      </main>
     </div>
-  </teleport>
+    <div class="modal-blur-background" @click="close()"></div>
+  </div>
 </template>
 
 <script>
 export default {
   methods: {
-    emit(eventType) {
-      this.$emit(eventType)
+    close() {
+      this.$emit("close")
     },
   },
   emits: ["close"],
@@ -55,9 +53,6 @@ export default {
   border-radius: var(--default-button-border-radius);
   border-bottom-right-radius: 0;
   border-bottom-left-radius: 0;
-
-  animation: appear 0.25s forwards ease-out;
-  /* FIXME: no animation when closing the modal */
 }
 
 @media (min-width: 900px) {
@@ -69,18 +64,6 @@ export default {
   .modal {
     max-width: 800px;
     border-radius: var(--default-button-border-radius);
-  }
-}
-
-@keyframes appear {
-  from {
-    opacity: 0;
-    visibility: hidden;
-  }
-
-  to {
-    opacity: 1;
-    visibility: visible;
   }
 }
 
@@ -112,6 +95,5 @@ export default {
   right: -5rem;
   bottom: -5rem;
   z-index: -1;
-  animation: appear 0.25s forwards ease-out;
 }
 </style>
