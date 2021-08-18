@@ -1,0 +1,99 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+.row,
+.column {
+  display: flex;
+}
+
+.column {
+  flex-direction: column;
+}
+
+:root {
+  /* Variables */
+  --background: #eee;
+  --secondary-background: #fff;
+  --foreground: #333;
+  --primary-100: rgb(245, 38, 72);
+  --primary-80: rgba(245, 38, 72, 0.8);
+  --primary-60: rgba(245, 38, 72, 0.6);
+  --modal-background: var(--background);
+  --modal-blur-background: rgba(42, 42, 42, 0.5);
+  --modal-shadow: rgba(51, 51, 51, 0.198);
+  --system-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol";
+  --default-button-border-radius: 20px;
+
+  background-color: var(--background);
+  color: var(--foreground);
+
+  transition: 0.3s background-color, 0.3s color;
+
+  font-family: Poppins, var(--system-font);
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@media screen and (prefers-color-scheme: dark) {
+  :root {
+    --background: rgb(19, 21, 53);
+    --secondary-background: rgb(11, 5, 37);
+    --foreground: #ccc;
+    --modal-blur-background: rgba(11, 5, 37, 0.8);
+    --modal-shadow: var(--secondary-background);
+  }
+}
+
+input,
+button {
+  font-size: 1rem;
+  font-family: inherit;
+
+  background-color: transparent;
+  border: none;
+
+  padding: 0.5rem 1rem;
+  border-radius: var(--default-button-border-radius);
+  outline: none;
+}
+
+/* Hide arrows on number input on Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Hide arrows on number input on other browsers */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  margin: 0;
+}
+
+button {
+  color: var(--primary-80);
+  transition: color 0.3s, background-color 0.3s;
+
+  cursor: pointer;
+}
+
+button:hover,
+button:focus {
+  color: var(--primary-100);
+}
