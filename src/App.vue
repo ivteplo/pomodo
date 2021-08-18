@@ -1,8 +1,124 @@
 <script setup>
 import Timer from "./components/Timer.vue"
+</script>
 
-// This starter template is using Vue 3 experimental <script setup> SFCs
-// Check out https://github.com/vuejs/rfcs/blob/master/active-rfcs/0040-script-setup.md
+<script>
+import { loadState, saveState } from "./State"
+import { reactive } from "@vue/reactivity"
+
+const twoDigitNumber = (number) =>
+  number > 9 ? number.toString() : "0" + number
+
+var state = reactive(loadState())
+
+var sendNotification = (title, description) => {
+  new Notification(title, {
+    body: description,
+    icon: "/favicon.ico",
+    sound: "default",
+  })
+}
+
+export default {
+  data() {
+    return {
+      isPaused: true,
+    }
+  },
+  computed: {
+    timeLeftString() {
+      var hours = Math.floor(state.timeLeft / 60 / 60)
+      var minutes = Math.floor((state.timeLeft / 60) % 60)
+      var seconds = Math.floor(state.timeLeft % 60)
+
+      return [hours ? hours : null, minutes, seconds]
+        .filter((value) => value !== null)
+        .map(twoDigitNumber)
+        .join(":")
+    },
+  },
+  methods: {
+    switchTo(mode) {
+      this.isPaused = true
+      state.mode = mode
+      state.timeLeft = state.durations[mode]
+      saveState(state)
+    },
+    buttonClass(name) {
+      return name === state.mode ? "selected" : ""
+    },
+    toggle() {
+      this.isPaused = !this.isPaused
+
+      if (!this.isPaused) {
+        this.startTimer()
+      }
+    },
+    startTimer() {
+      const requestAnimationFrame =
+        window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.oRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        ((callback) => setInterval(callback, 1000 / 30))
+
+      let prevTime = Date.now()
+
+      const timer = () => {
+        if (!this.isPaused) {
+          // Calculate the delta
+          let delta = Date.now() - prevTime
+          // Update the amount of time left
+          state.timeLeft = state.timeLeft - delta / 1000
+          // Set prevTime to equal to Date.now()
+          prevTime += delta
+
+          // If time is over
+          if (state.timeLeft <= 0) {
+            // If we were focusing
+            if (state.mode === "focus") {
+              // Increase the streak length
+              state.streak.length += 1
+              // Specify the last time the streak has increased
+              state.streak.time = Date.now()
+
+              const shouldHaveLongBreak =
+                state.streak.length % state.streaksForLongBreak === 0
+              this.switchTo(shouldHaveLongBreak ? "longBreak" : "shortBreak")
+
+              sendNotification(
+                "Hey, the break is over",
+                "It's time to focus on your tasks"
+              )
+            } else {
+              this.switchTo("focus")
+              sendNotification(
+                "Hey, it's time for a break",
+                "Relax and collect more energy to work productively during the next pomodoro"
+              )
+            }
+          }
+
+          saveState(state)
+          requestAnimationFrame(timer)
+        }
+      }
+
+      timer()
+    },
+  },
+
+  async mounted() {
+    if (Notification.permission === "default") {
+      await Notification.requestPermission()
+    }
+
+    if (Notification.permission !== "granted") {
+      sendNotification = (title, description) => {}
+    }
+  },
+}
 </script>
 
 <template>
@@ -38,128 +154,6 @@ import Timer from "./components/Timer.vue"
 
   <button type="button" class="settings-button">Settings</button>
 </template>
-
-<script>
-const twoDigitNumber = (number) =>
-  number > 9 ? number.toString() : "0" + number
-
-const streakForLongBreak = 4
-
-const defaultDurations = {
-  // focus: 25 * 60,
-  // shortBreak: 5 * 60,
-  // longBreak: 15 * 60,
-  focus: 2,
-  shortBreak: 2,
-  longBreak: 3,
-}
-
-var sendNotification = (title, description) => {
-  new Notification(title, {
-    body: description,
-    icon: "/favicon.ico",
-    sound: "default",
-  })
-}
-
-export default {
-  data() {
-    return {
-      timeLeft: defaultDurations.focus,
-      isPaused: true,
-      mode: "focus",
-      // Count of pomodoros the user has done so far
-      streak: 0,
-    }
-  },
-  computed: {
-    timeLeftString() {
-      var hours = Math.floor(this.timeLeft / 60 / 60)
-      var minutes = Math.floor((this.timeLeft / 60) % 60)
-      var seconds = Math.floor(this.timeLeft % 60)
-
-      return [hours ? hours : null, minutes, seconds]
-        .filter((value) => value !== null)
-        .map(twoDigitNumber)
-        .join(":")
-    },
-  },
-  methods: {
-    switchTo(mode) {
-      this.mode = mode
-      this.isPaused = true
-      this.timeLeft = defaultDurations[mode]
-    },
-    buttonClass(name) {
-      return name === this.mode ? "selected" : ""
-    },
-    toggle() {
-      this.isPaused = !this.isPaused
-
-      if (!this.isPaused) {
-        this.startTimer()
-      }
-    },
-    startTimer() {
-      const requestAnimationFrame =
-        window.requestAnimationFrame ||
-        window.webkitRequestAnimationFrame ||
-        window.mozRequestAnimationFrame ||
-        window.oRequestAnimationFrame ||
-        window.msRequestAnimationFrame ||
-        ((callback) => setInterval(callback, 1000 / 30))
-
-      let prevTime = Date.now()
-
-      const timer = () => {
-        if (!this.isPaused) {
-          let delta = Date.now() - prevTime
-          this.timeLeft = this.timeLeft - delta / 1000
-          prevTime += delta
-
-          if (this.timeLeft <= 0) {
-            if (this.mode === "focus") {
-              this.streak += 1
-
-              if (this.streak >= streakForLongBreak) {
-                this.switchTo("longBreak")
-                this.streak = 0
-              } else {
-                this.switchTo("shortBreak")
-              }
-
-              sendNotification(
-                "Hey, the break is over",
-                "It's time to focus on your tasks"
-              )
-            } else {
-              this.switchTo("focus")
-              sendNotification(
-                "Hey, it's time for a break",
-                "Relax and collect more energy to work productively during the next pomodoro"
-              )
-            }
-          }
-
-          requestAnimationFrame(timer)
-        }
-      }
-
-      timer()
-    },
-  },
-
-  async mounted() {
-    if (Notification.permission === "default") {
-      await Notification.requestPermission()
-    }
-
-    if (Notification.permission !== "granted") {
-      sendNotification = (title, description) => {}
-    }
-  },
-}
-</script>
 
 <style>
 #app {
