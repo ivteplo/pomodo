@@ -1,3 +1,5 @@
+// Copyright (c) 2021 Ivan Zadvornov
+
 <template>
   <button :class="'column Timer ' + (isPaused ? 'paused' : '')" role="status">
     <h2>

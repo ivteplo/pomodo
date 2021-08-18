@@ -1,5 +1,9 @@
-import { createApp } from 'vue'
-import App from './App.vue'
-import './theme.css'
+// Copyright (c) 2021 Ivan Zadvornov
 
-createApp(App).mount('#app')
+import { createApp } from "vue"
+import App from "./App.vue"
+import "./theme.css"
+import { setupThemeColor } from "./utils/setupThemeColor"
+
+createApp(App).mount("#app")
+setupThemeColor()

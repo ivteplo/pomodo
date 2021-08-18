@@ -1,3 +1,5 @@
+// Copyright (c) 2021 Ivan Zadvornov
+
 <template>
   <teleport to="#app-modals">
     <div class="modal-wrapper column">

@@ -1,3 +1,5 @@
+// Copyright (c) 2021 Ivan Zadvornov
+
 <script setup>
 import Timer from "./components/Timer.vue"
 import Modal from "./components/Modal.vue"
