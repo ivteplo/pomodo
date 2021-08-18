@@ -1,5 +1,6 @@
 <script setup>
 import Timer from "./components/Timer.vue"
+import Modal from "./components/Modal.vue"
 </script>
 
 <script>
@@ -23,6 +24,8 @@ export default {
   data() {
     return {
       isPaused: true,
+      areSettingsOpen: false,
+      durations: state.durations,
     }
   },
   computed: {
@@ -100,12 +103,17 @@ export default {
             }
           }
 
+          // TODO: maybe save the state more rarely
           saveState(state)
           requestAnimationFrame(timer)
         }
       }
 
       timer()
+    },
+    setDuration(mode, duration) {
+      state.durations[mode] = +duration * 60
+      saveState(state)
     },
   },
 
@@ -152,7 +160,53 @@ export default {
 
   <Timer :time="timeLeftString" :isPaused="isPaused" @click="toggle()" />
 
-  <button type="button" class="settings-button">Settings</button>
+  <button
+    type="button"
+    class="settings-button"
+    @click="this.areSettingsOpen = true"
+  >
+    Settings
+  </button>
+
+  <Modal v-if="this.areSettingsOpen" @close="this.areSettingsOpen = false">
+    <template v-slot:header>
+      <h2>Settings</h2>
+    </template>
+    <template v-slot:body>
+      <div class="column settings">
+        <div class="column setting">
+          <h3>Focus timer duration (in minutes)</h3>
+          <input
+            type="number"
+            min="10"
+            max="120"
+            :value="durations.focus / 60"
+            @change="setDuration('focus', $event.target.value)"
+          />
+        </div>
+        <div class="column setting">
+          <h3>Short break duration (in minutes)</h3>
+          <input
+            type="number"
+            min="5"
+            max="15"
+            :value="durations.shortBreak / 60"
+            @change="setDuration('shortBreak', $event.target.value)"
+          />
+        </div>
+        <div class="column setting">
+          <h3>Long break duration (in minutes)</h3>
+          <input
+            type="number"
+            min="10"
+            max="60"
+            :value="durations.longBreak / 60"
+            @change="setDuration('longBreak', $event.target.value)"
+          />
+        </div>
+      </div>
+    </template>
+  </Modal>
 </template>
 
 <style>
@@ -171,22 +225,26 @@ export default {
   padding: 2rem;
 }
 
-header {
+#app > header {
   align-items: center;
   margin-bottom: 4rem;
 }
 
-header h1 {
+#app > header h1 {
   margin-bottom: 1rem;
   text-transform: lowercase;
   font-weight: 500;
+}
+
+#app-modals:not(:empty) + #app {
+  overflow: hidden;
 }
 
 .status-buttons {
   --gap: 5px;
   background-color: var(--secondary-background);
   padding: var(--gap);
-  border-radius: var(--default-button-border-radius);
+  border-radius: calc(var(--default-button-border-radius) + 5px);
 }
 
 .status-buttons > button {
@@ -211,5 +269,27 @@ header h1 {
 
 .settings-button {
   margin-top: 3rem;
+}
+
+.settings {
+  flex: 1;
+}
+
+.settings .setting {
+  margin-bottom: 1.5rem;
+}
+
+.settings .setting h3 {
+  font-weight: 500;
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.settings .setting input {
+  max-width: 400px;
+  background-color: var(--secondary-background);
+  color: var(--foreground);
+  border-radius: var(--default-button-border-radius);
+  height: 30px;
 }
 </style>
