@@ -214,7 +214,7 @@ export default {
   -webkit-tap-highlight-color: transparent;
   user-select: none;
 
-  flex-grow: 1;
+  flex: 1;
 
   display: flex;
   flex-direction: column;
@@ -222,12 +222,12 @@ export default {
   justify-content: space-between;
   align-items: center;
 
-  padding: 2rem;
+  padding: 1rem;
+  box-sizing: border-box;
 }
 
 #app > header {
   align-items: center;
-  margin-bottom: 4rem;
 }
 
 #app > header h1 {
@@ -268,7 +268,7 @@ export default {
 }
 
 .settings-button {
-  margin-top: 3rem;
+  /* margin-top: 5rem; */
 }
 
 .settings {
