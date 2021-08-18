@@ -2,7 +2,11 @@
   <button :class="'column Timer ' + (isPaused ? 'paused' : '')" role="status">
     <h2>
       <!-- TODO: add support for animating characters -->
-      <span v-for="char of time.split('')" v-bind:key="char">{{ char }}</span>
+      <span
+        v-for="[index, char] of Object.entries(time.split(''))"
+        v-bind:key="index + char"
+        >{{ char }}</span
+      >
     </h2>
     <p>{{ isPaused ? "Paused" : "Running" }}</p>
   </button>
