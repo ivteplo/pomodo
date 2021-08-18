@@ -28,6 +28,7 @@ export default {
       this.$emit(eventType)
     },
   },
+  emits: ["close"],
 }
 </script>
 
@@ -57,6 +58,18 @@ export default {
 
   animation: appear 0.25s forwards ease-out;
   /* FIXME: no animation when closing the modal */
+}
+
+@media (min-width: 900px) {
+  .modal-wrapper {
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal {
+    max-width: 800px;
+    border-radius: var(--default-button-border-radius);
+  }
 }
 
 @keyframes appear {
