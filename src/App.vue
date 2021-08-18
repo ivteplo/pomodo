@@ -1,3 +1,10 @@
+<script setup>
+import Timer from "./components/Timer.vue"
+
+// This starter template is using Vue 3 experimental <script setup> SFCs
+// Check out https://github.com/vuejs/rfcs/blob/master/active-rfcs/0040-script-setup.md
+</script>
+
 <template>
   <header class="column">
     <h1>Pomodo</h1>
@@ -32,13 +39,6 @@
   <button type="button" class="settings-button">Settings</button>
 </template>
 
-<script setup>
-import Timer from "./components/Timer.vue"
-
-// This starter template is using Vue 3 experimental <script setup> SFCs
-// Check out https://github.com/vuejs/rfcs/blob/master/active-rfcs/0040-script-setup.md
-</script>
-
 <script>
 const twoDigitNumber = (number) =>
   number > 9 ? number.toString() : "0" + number
@@ -46,9 +46,20 @@ const twoDigitNumber = (number) =>
 const streakForLongBreak = 4
 
 const defaultDurations = {
-  focus: 25 * 60,
-  shortBreak: 5 * 60,
-  longBreak: 15 * 60,
+  // focus: 25 * 60,
+  // shortBreak: 5 * 60,
+  // longBreak: 15 * 60,
+  focus: 2,
+  shortBreak: 2,
+  longBreak: 3,
+}
+
+var sendNotification = (title, description) => {
+  new Notification(title, {
+    body: description,
+    icon: "/favicon.ico",
+    sound: "default",
+  })
 }
 
 export default {
@@ -78,7 +89,6 @@ export default {
       this.mode = mode
       this.isPaused = true
       this.timeLeft = defaultDurations[mode]
-      // TODO: update document title
     },
     buttonClass(name) {
       return name === this.mode ? "selected" : ""
@@ -117,8 +127,17 @@ export default {
               } else {
                 this.switchTo("shortBreak")
               }
+
+              sendNotification(
+                "Hey, the break is over",
+                "It's time to focus on your tasks"
+              )
             } else {
               this.switchTo("focus")
+              sendNotification(
+                "Hey, it's time for a break",
+                "Relax and collect more energy to work productively during the next pomodoro"
+              )
             }
           }
 
@@ -129,11 +148,24 @@ export default {
       timer()
     },
   },
+
+  async mounted() {
+    if (Notification.permission === "default") {
+      await Notification.requestPermission()
+    }
+
+    if (Notification.permission !== "granted") {
+      sendNotification = (title, description) => {}
+    }
+  },
 }
 </script>
 
 <style>
 #app {
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+
   flex-grow: 1;
 
   display: flex;
@@ -143,7 +175,6 @@ export default {
   align-items: center;
 
   padding: 2rem;
-  overflow-y: auto;
 }
 
 header {
@@ -161,7 +192,7 @@ header h1 {
   --gap: 5px;
   background-color: var(--secondary-background);
   padding: var(--gap);
-  border-radius: 50px;
+  border-radius: var(--default-button-border-radius);
 }
 
 .status-buttons > button {

@@ -33,6 +33,7 @@ body {
   --system-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
     "Segoe UI Symbol";
+  --default-button-border-radius: 20px;
 
   background-color: var(--background);
   color: var(--foreground);
@@ -61,7 +62,7 @@ button {
   border: none;
 
   padding: 0.5rem;
-  border-radius: 20px;
+  border-radius: var(--default-button-border-radius);
 
   color: var(--primary-80);
   transition: color 0.3s, background-color 0.3s;

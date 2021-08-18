@@ -1,6 +1,7 @@
 <template>
   <button :class="'column Timer ' + (isPaused ? 'paused' : '')" role="status">
     <h2>
+      <!-- TODO: add support for animating characters -->
       <span v-for="char of time.split('')" v-bind:key="char">{{ char }}</span>
     </h2>
     <p>{{ isPaused ? "Paused" : "Running" }}</p>
@@ -16,6 +17,7 @@ defineProps({
 
 <style scoped>
 .Timer {
+  --size: 225px;
   --border-width: 10px;
   --shadow-radius: 3rem;
   --shadow-color: var(--primary-80);
@@ -25,8 +27,9 @@ defineProps({
   align-items: center;
   justify-content: center;
 
-  aspect-ratio: 1/1;
-  width: 250px;
+  width: var(--size);
+  height: var(--size);
+  flex-shrink: 0;
   padding: 1rem;
 
   border-radius: 50%;
