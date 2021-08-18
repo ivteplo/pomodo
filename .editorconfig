@@ -2,11 +2,8 @@ root = true
 
 [*]
 indent_style = space
-indent_size = 4
 charset = utf-8
+indent_size = 2
 end_of_line = lf
 trim_trailing_whitespace = false
 insert_final_newline = false
-
-[*.{js,html,css,vue,json}]
-indent_size = 2
