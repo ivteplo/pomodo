@@ -42,8 +42,6 @@ defineProps({
 
   color: var(--foreground);
 
-  transition: 0.3s box-shadow ease-out;
-
   position: relative;
 
   box-sizing: border-box;
@@ -87,6 +85,8 @@ defineProps({
 
   box-shadow: 0 0 var(--shadow-radius) var(--border-width) var(--shadow-color),
     inset 0 0 var(--inner-shadow-radius) var(--inner-shadow-color);
+
+  transition: 0.3s box-shadow ease-out;
 }
 
 .Timer > h2 {
