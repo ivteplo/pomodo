@@ -1,22 +1,26 @@
 // Copyright (c) 2021 Ivan Zadvornov
 
 <template>
-  <div class="modal-wrapper column">
-    <div class="modal column">
-      <header class="row">
-        <slot name="header"><span></span></slot>
-        <div class="controls">
-          <button type="button" role="navigation" @click="close()">
-            Close
-          </button>
+  <teleport to="#app-modals">
+    <transition name="fade">
+      <div v-if="isOpen" class="modal-wrapper column" v-bind="$attrs">
+        <div class="modal column">
+          <header class="row">
+            <slot name="header"><span></span></slot>
+            <div class="controls">
+              <button type="button" role="navigation" @click="close()">
+                Close
+              </button>
+            </div>
+          </header>
+          <main>
+            <slot name="body"></slot>
+          </main>
         </div>
-      </header>
-      <main>
-        <slot name="body"></slot>
-      </main>
-    </div>
-    <div class="modal-blur-background" @click="close()"></div>
-  </div>
+        <div class="modal-blur-background" @click="close()"></div>
+      </div>
+    </transition>
+  </teleport>
 </template>
 
 <script>
@@ -27,8 +31,21 @@ export default {
     },
   },
   emits: ["close"],
+  props: ["isOpen"],
 }
 </script>
+
+<style>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.25s;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>
 
 <style scoped>
 .modal-wrapper {
@@ -39,8 +56,8 @@ export default {
   width: 100%;
   min-height: 100%;
   justify-content: flex-end;
-  /* FIXME: not being able to scroll 
-     when focusing an input from mobile */
+  align-items: center;
+  overflow: hidden;
 }
 
 .modal {
@@ -53,8 +70,11 @@ export default {
   border-radius: var(--default-button-border-radius);
   border-bottom-right-radius: 0;
   border-bottom-left-radius: 0;
-}
 
+  max-width: 500px;
+  max-height: 90vh;
+  width: 100%;
+}
 @media (min-width: 900px) {
   .modal-wrapper {
     align-items: center;
@@ -62,34 +82,34 @@ export default {
   }
 
   .modal {
-    max-width: 800px;
     border-radius: var(--default-button-border-radius);
   }
 }
 
-.modal > header {
+.modal header {
   justify-content: space-between;
   align-items: stretch;
   margin-bottom: 1rem;
 }
 
-.modal > header > .controls > button {
+.modal header > .controls > button {
   color: var(--foreground);
 }
 
-.modal > header > .controls > button:focus,
-.modal > header > .controls > button:hover {
+.modal header > .controls > button:focus,
+.modal header > .controls > button:hover {
   color: var(--primary-100);
 }
 
-.modal > main {
+.modal main {
   flex-grow: 1;
+  overflow-y: auto;
 }
 
 .modal-blur-background {
   background-color: var(--modal-blur-background);
   backdrop-filter: blur(1rem);
-  position: fixed;
+  position: absolute;
   top: -5rem;
   left: -5rem;
   right: -5rem;

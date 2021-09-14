@@ -23,7 +23,7 @@ defineProps({
 
 <style scoped>
 .Timer {
-  --size: 225px;
+  --size: 250px;
   --border-width: 10px;
   --shadow-radius: 3rem;
   --shadow-color: var(--primary-80);
@@ -40,36 +40,53 @@ defineProps({
 
   border-radius: 50%;
 
-  background-color: var(--secondary-background);
   color: var(--foreground);
 
-  box-shadow: 0 0 var(--shadow-radius) var(--border-width) var(--shadow-color),
-    inset 0 0 var(--inner-shadow-radius) var(--inner-shadow-color);
   transition: 0.3s box-shadow ease-out;
 
   position: relative;
+
+  box-sizing: border-box;
 }
 
 .Timer::before {
   content: "";
   position: absolute;
   z-index: -2;
-  top: calc(-1 * var(--border-width));
-  left: calc(-1 * var(--border-width));
-  right: calc(-1 * var(--border-width));
-  bottom: calc(-1 * var(--border-width));
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 
   animation: rotate infinite 2s linear;
 
+  background-color: var(--secondary-background);
   background-image: linear-gradient(
     90deg,
     var(--background),
     var(--secondary-background)
   );
-  background-color: var(--secondary-background);
 
   border-radius: 50%;
   filter: brightness(1.5);
+}
+
+.Timer::after {
+  content: "";
+
+  background-color: var(--secondary-background);
+  border-radius: 50%;
+
+  position: absolute;
+  z-index: -1;
+
+  top: var(--border-width);
+  left: var(--border-width);
+  right: var(--border-width);
+  bottom: var(--border-width);
+
+  box-shadow: 0 0 var(--shadow-radius) var(--border-width) var(--shadow-color),
+    inset 0 0 var(--inner-shadow-radius) var(--inner-shadow-color);
 }
 
 .Timer > h2 {

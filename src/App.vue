@@ -6,6 +6,7 @@ import Modal from "./components/Modal.vue"
 </script>
 
 <script>
+import requestAnimationFrame from "./utils/requestAnimationFrame"
 import { loadState, saveState } from "./State"
 import { reactive } from "@vue/reactivity"
 
@@ -21,7 +22,9 @@ export default {
     return {
       isPaused: true,
       areSettingsOpen: false,
-      durations: state.durations,
+      focusDurationSetting: state.durations.focus / 60,
+      shortBreakDurationSetting: state.durations.shortBreak / 60,
+      longBreakDurationSetting: state.durations.longBreak / 60,
     }
   },
   computed: {
@@ -58,14 +61,6 @@ export default {
       this.setupNotifications()
     },
     startTimer() {
-      const requestAnimationFrame =
-        window.requestAnimationFrame ||
-        window.webkitRequestAnimationFrame ||
-        window.mozRequestAnimationFrame ||
-        window.oRequestAnimationFrame ||
-        window.msRequestAnimationFrame ||
-        ((callback) => setInterval(callback, 1000 / 30))
-
       let prevTime = Date.now()
 
       const timer = () => {
@@ -91,14 +86,15 @@ export default {
               this.switchTo(shouldHaveLongBreak ? "longBreak" : "shortBreak")
 
               sendNotification(
-                "Hey, the break is over",
-                "It's time to focus on your tasks"
+                "Hey, it's time for a break",
+                "Relax and collect more energy to work productively during the next pomodoro"
               )
             } else {
               this.switchTo("focus")
+
               sendNotification(
-                "Hey, it's time for a break",
-                "Relax and collect more energy to work productively during the next pomodoro"
+                "Hey, the break is over",
+                "It's time to focus on your tasks"
               )
             }
           }
@@ -112,7 +108,26 @@ export default {
       timer()
     },
     setDuration(mode, duration) {
-      state.durations[mode] = +duration * 60
+      if (isNaN(duration)) {
+        return
+      }
+
+      if (duration >= 1 && duration <= 120) {
+        if (
+          // If changed value is the current mode
+          mode === state.mode &&
+          // If the user hasn't started the timer yet
+          state.timeLeft === state.durations[mode] &&
+          // If the timer is paused
+          this.isPaused
+        ) {
+          state.timeLeft = +duration * 60
+        }
+
+        state.durations[mode] = +Math.round(duration) * 60
+      }
+
+      this[mode + "DurationSetting"] = state.durations[mode] / 60
       saveState(state)
     },
     async setupNotifications() {
@@ -169,59 +184,48 @@ export default {
     Settings
   </button>
 
-  <transition name="fade">
-    <Modal v-if="areSettingsOpen" @close="areSettingsOpen = false">
-      <template v-slot:header>
-        <h2>Settings</h2>
-      </template>
-      <template v-slot:body>
-        <div class="column settings">
-          <div class="column setting">
-            <h3>Focus timer duration (in minutes)</h3>
-            <input
-              type="number"
-              min="10"
-              max="120"
-              :value="durations.focus / 60"
-              @change="setDuration('focus', $event.target.value)"
-            />
-          </div>
-          <div class="column setting">
-            <h3>Short break duration (in minutes)</h3>
-            <input
-              type="number"
-              min="5"
-              max="15"
-              :value="durations.shortBreak / 60"
-              @change="setDuration('shortBreak', $event.target.value)"
-            />
-          </div>
-          <div class="column setting">
-            <h3>Long break duration (in minutes)</h3>
-            <input
-              type="number"
-              min="10"
-              max="60"
-              :value="durations.longBreak / 60"
-              @change="setDuration('longBreak', $event.target.value)"
-            />
-          </div>
+  <Modal :isOpen="areSettingsOpen" @close="areSettingsOpen = false">
+    <template v-slot:header>
+      <h2>Settings</h2>
+    </template>
+    <template v-slot:body>
+      <div class="column settings">
+        <div class="column setting">
+          <h3>Focus timer duration (in minutes)</h3>
+          <input
+            type="number"
+            min="10"
+            max="120"
+            v-model="focusDurationSetting"
+            @change="setDuration('focus', +$event.target.value)"
+          />
         </div>
-      </template>
-    </Modal>
-  </transition>
+        <div class="column setting">
+          <h3>Short break duration (in minutes)</h3>
+          <input
+            type="number"
+            min="5"
+            max="15"
+            v-model="shortBreakDurationSetting"
+            @change="setDuration('shortBreak', +$event.target.value)"
+          />
+        </div>
+        <div class="column setting">
+          <h3>Long break duration (in minutes)</h3>
+          <input
+            type="number"
+            min="10"
+            max="60"
+            v-model="longBreakDurationSetting"
+            @change="setDuration('longBreak', +$event.target.value)"
+          />
+        </div>
+      </div>
+    </template>
+  </Modal>
 </template>
 
 <style>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.25s;
-}
-
-.fade-enter-from, .fade-leave-to {
-  opacity: 0;
-}
-
 #app {
   -webkit-tap-highlight-color: transparent;
   user-select: none;
@@ -257,6 +261,7 @@ export default {
   background-color: var(--secondary-background);
   padding: var(--gap);
   border-radius: calc(var(--default-button-border-radius) + 5px);
+  margin-bottom: 2rem;
 }
 
 .status-buttons > button {
@@ -277,6 +282,10 @@ export default {
 .status-buttons > button.selected:hover {
   color: var(--background);
   background-color: var(--primary-100);
+}
+
+.settings-button {
+  margin-top: 2rem;
 }
 
 .settings {

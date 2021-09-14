@@ -41,14 +41,22 @@ const validateState = (state) => {
     state.durations = { ...defaultState.durations }
   } else {
     // Validate timer durations
-    for (const [key, value] in Object.entries(state.durations)) {
+    for (let [key, value] of Object.entries(state.durations)) {
+      value = Math.round(value)
+
       // If the mode is unknown, then delete the key
       if (!isValidMode(key)) {
         delete state.durations[key]
       }
-      // If value is not a number, then reset it
-      else if (typeof value !== "number") {
+      // If value is not a number or is in an invalid range, then reset it
+      else if (
+        !(typeof value === "number" && value >= 1 * 60 && value <= 120 * 60)
+      ) {
         state.durations[key] = defaultState.durations[key]
+      }
+      // Else just make the number an integer
+      else {
+        state.durations[key] = value
       }
     }
 
