@@ -44,11 +44,22 @@ export default {
     },
   },
   methods: {
+    updateDocumentTitle() {
+      let title = "Pomodo"
+
+      if (!this.isPaused) {
+        title = this.timeLeftString + " | " + title
+      }
+
+      document.title = title
+    },
     switchTo(mode) {
       this.isPaused = true
       this.stopTimer()
+
       state.mode = mode
       state.timeLeft = state.durations[mode]
+
       saveState(state)
     },
     buttonClass(name) {
@@ -103,6 +114,8 @@ export default {
           }
         }
 
+        this.updateDocumentTitle()
+
         // TODO: maybe save the state more rarely
         saveState(state)
       }
@@ -120,6 +133,7 @@ export default {
     },
     stopTimer() {
       timerWorker?.postMessage("stopTimer")
+      this.updateDocumentTitle()
     },
     setDuration(mode, duration) {
       if (isNaN(duration)) {
