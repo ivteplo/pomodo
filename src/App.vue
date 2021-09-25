@@ -6,7 +6,8 @@ import Modal from "./components/Modal.vue"
 </script>
 
 <script>
-import requestAnimationFrame from "./utils/requestAnimationFrame"
+import installServiceWorker from "./utils/installServiceWorker"
+import setupTimerWorker from "./utils/setupTimerWorker"
 import { loadState, saveState } from "./State"
 import { reactive } from "@vue/reactivity"
 
@@ -14,6 +15,8 @@ const twoDigitNumber = (number) =>
   number > 9 ? number.toString() : "0" + number
 
 var state = reactive(loadState())
+let timerWorker
+let prevTime
 
 var sendNotification = () => {}
 
@@ -22,6 +25,7 @@ export default {
     return {
       isPaused: true,
       areSettingsOpen: false,
+      showUpdateAvailable: false,
       focusDurationSetting: state.durations.focus / 60,
       shortBreakDurationSetting: state.durations.shortBreak / 60,
       longBreakDurationSetting: state.durations.longBreak / 60,
@@ -42,70 +46,80 @@ export default {
   methods: {
     switchTo(mode) {
       this.isPaused = true
+      this.stopTimer()
       state.mode = mode
       state.timeLeft = state.durations[mode]
       saveState(state)
     },
     buttonClass(name) {
-      return name === state.mode ? "selected" : ""
+      return name === state.mode ? "filled" : ""
     },
     toggle() {
       this.isPaused = !this.isPaused
 
       if (!this.isPaused) {
         this.startTimer()
+      } else {
+        this.stopTimer()
       }
     },
     timerClicked() {
       this.toggle()
       this.setupNotifications()
     },
-    startTimer() {
-      let prevTime = Date.now()
+    onTick() {
+      if (!this.isPaused) {
+        // Calculate the delta
+        let delta = Date.now() - prevTime
+        // Update the amount of time left
+        state.timeLeft = state.timeLeft - delta / 1000
+        // Set prevTime to equal to Date.now()
+        prevTime += delta
 
-      const timer = () => {
-        if (!this.isPaused) {
-          // Calculate the delta
-          let delta = Date.now() - prevTime
-          // Update the amount of time left
-          state.timeLeft = state.timeLeft - delta / 1000
-          // Set prevTime to equal to Date.now()
-          prevTime += delta
+        // If time is over
+        if (state.timeLeft <= 0) {
+          // If we were focusing
+          if (state.mode === "focus") {
+            // Increase the streak length
+            state.streak.length += 1
+            // Specify the last time the streak has increased
+            state.streak.time = Date.now()
 
-          // If time is over
-          if (state.timeLeft <= 0) {
-            // If we were focusing
-            if (state.mode === "focus") {
-              // Increase the streak length
-              state.streak.length += 1
-              // Specify the last time the streak has increased
-              state.streak.time = Date.now()
+            const shouldHaveLongBreak =
+              state.streak.length % state.streaksForLongBreak === 0
+            this.switchTo(shouldHaveLongBreak ? "longBreak" : "shortBreak")
 
-              const shouldHaveLongBreak =
-                state.streak.length % state.streaksForLongBreak === 0
-              this.switchTo(shouldHaveLongBreak ? "longBreak" : "shortBreak")
+            sendNotification(
+              "Hey, it's time for a break",
+              "Relax and collect more energy to work productively during the next pomodoro"
+            )
+          } else {
+            this.switchTo("focus")
 
-              sendNotification(
-                "Hey, it's time for a break",
-                "Relax and collect more energy to work productively during the next pomodoro"
-              )
-            } else {
-              this.switchTo("focus")
-
-              sendNotification(
-                "Hey, the break is over",
-                "It's time to focus on your tasks"
-              )
-            }
+            sendNotification(
+              "Hey, the break is over",
+              "It's time to focus on your tasks"
+            )
           }
-
-          // TODO: maybe save the state more rarely
-          saveState(state)
-          requestAnimationFrame(timer)
         }
+
+        // TODO: maybe save the state more rarely
+        saveState(state)
       }
 
-      timer()
+      if (this.isPaused) {
+        this.stopTimer()
+      }
+    },
+    startTimer() {
+      timerWorker?.postMessage("stopTimer")
+
+      prevTime = Date.now()
+
+      timerWorker?.postMessage("startTimer")
+    },
+    stopTimer() {
+      timerWorker?.postMessage("stopTimer")
     },
     setDuration(mode, duration) {
       if (isNaN(duration)) {
@@ -130,6 +144,9 @@ export default {
       this[mode + "DurationSetting"] = state.durations[mode] / 60
       saveState(state)
     },
+    reloadPage() {
+      window.location.reload()
+    },
     async setupNotifications() {
       if (Notification.permission === "default") {
         await Notification.requestPermission()
@@ -145,6 +162,27 @@ export default {
         }
       }
     },
+  },
+  mounted() {
+    if (import.meta.env.PROD) {
+      installServiceWorker({
+        onUpdateAvailable: () => {
+          this.showUpdateAvailable = true
+        },
+      }).catch(console.error)
+    }
+
+    timerWorker = setupTimerWorker()
+    timerWorker.addEventListener("message", (event) => {
+      switch (event.data) {
+        case "tick":
+          this.onTick()
+          break
+        default:
+          console.error("Unknown message: " + event.data)
+          break
+      }
+    })
   },
 }
 </script>
@@ -223,6 +261,23 @@ export default {
       </div>
     </template>
   </Modal>
+
+  <Modal :isOpen="showUpdateAvailable" @close="showUpdateAvailable = false">
+    <template v-slot:header>
+      <h2>Update</h2>
+    </template>
+    <template v-slot:body>
+      <div class="column">
+        <p style="margin-bottom: 1rem">
+          There is an update available. It will be installed when all tabs for
+          this page are closed.
+        </p>
+        <button type="button" class="filled" @click="reloadPage()">
+          Reload
+        </button>
+      </div>
+    </template>
+  </Modal>
 </template>
 
 <style>
@@ -272,16 +327,6 @@ export default {
 
 .status-buttons > button:last-child {
   margin-right: 0;
-}
-
-.status-buttons > button.selected {
-  background-color: var(--primary-80);
-  color: var(--background);
-}
-
-.status-buttons > button.selected:hover {
-  color: var(--background);
-  background-color: var(--primary-100);
 }
 
 .settings-button {

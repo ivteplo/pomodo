@@ -97,3 +97,14 @@ button:hover,
 button:focus {
   color: var(--primary-100);
 }
+
+button.filled {
+  background-color: var(--primary-80);
+  color: var(--secondary-background);
+}
+
+button.filled:hover,
+button.filled:focus {
+  background-color: var(--primary-100);
+  color: var(--secondary-background);
+}
