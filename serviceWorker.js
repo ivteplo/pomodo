@@ -1,6 +1,6 @@
 // Copyright (c) 2021 Ivan Teplov
 
-const cacheName = "v1"
+const cacheName = "v1.1.1"
 const cacheKeeplist = [cacheName]
 
 const pathsToCache = ["index.html", "favicon.ico"]
