@@ -110,7 +110,7 @@ button {
   color: var(--background);
   background-color: var(--primary);
 
-  border: none;
+  border: 0.125em solid transparent;
   outline: none;
 
   font-weight: 500;
@@ -135,21 +135,10 @@ button:focus {
   border-color: var(--foreground);
 }
 
-button.danger:not(.filled):not(:disabled) {
-  color: var(--danger);
-  background-color: var(--background);
-  border: 0.125em solid var(--divider);
-}
-
-button.danger.filled:not(:disabled) {
-  color: var(--background);
-  background-color: var(--danger);
-}
-
 button.gray:not(:disabled) {
   color: var(--gray);
   background: var(--background);
-  border: 0.125em solid var(--divider);
+  border-color: var(--divider);
 }
 
 .row,

@@ -1,30 +1,60 @@
 // Copyright (c) 2021-2022 Ivan Teplov
 
 <script setup>
-  import Header from "./components/Header.vue"
-  import Timer from "./components/Timer.vue"
-  import TimerInput from "./components/TimerInput.vue"
+import Header from "./components/Header.vue"
+import Timer from "./components/Timer.vue"
+</script>
+
+<script>
+export default {
+  methods: {
+    startTimer() {
+      this.$refs.timer.start()
+      this.timerHasStarted = true
+    },
+    stopTimer() {
+      this.$refs.timer.stop()
+      this.timerHasStarted = false
+    },
+  },
+  data() {
+    return {
+      timerHasStarted: false,
+    }
+  },
+}
 </script>
 
 <template>
   <div class="App fill column">
     <Header />
-    <!-- <Timer :minutes="25" :seconds="0" /> -->
-    <TimerInput />
+    <Timer ref="timer" />
+
+    <button
+      type="button"
+      class="primary"
+      @click="this.startTimer"
+      v-if="!this.timerHasStarted"
+    >
+      Start
+    </button>
+
+    <button
+      type="button"
+      class="gray"
+      @click="this.stopTimer"
+      v-if="this.timerHasStarted"
+    >
+      Cancel
+    </button>
   </div>
 </template>
-
-<script>
-export default {
-  setup() {
-
-  },
-}
-</script>
 
 <style scoped>
 .App {
   justify-content: center;
   align-items: center;
+  gap: 3rem;
+  padding: 1rem;
 }
 </style>

@@ -10,8 +10,11 @@ export default {
   props: {
     min: Number,
     max: Number,
-    value: Number,
     step: Number,
+    value: {
+      type: Number,
+    },
+
     inputLabel: String,
     showCircleOnEnd: {
       type: Boolean,
@@ -78,6 +81,7 @@ export default {
     },
     endChange() {
       this.isBeingChanged = false
+      this._value = this.value
     },
     onChange(event) {
       if (!this.isBeingChanged) return
@@ -125,6 +129,13 @@ export default {
       this.$emit("change", { value })
     },
   },
+  watch: {
+    // When the value is changed from the parent,
+    // then the local state variable too
+    "$props.value"() {
+      this._value = this.value
+    },
+  },
 }
 </script>
 
@@ -135,11 +146,12 @@ export default {
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 100 100"
       ref="svg"
-      @mousemove="(event) => this.onChange(event)"
-      @touchmove="(event) => this.onChange(event)"
-      @mouseup="() => this.endChange()"
-      @touchend="() => this.endChange()"
+      @mousemove="this.onChange"
+      @touchmove="this.onChange"
+      @mouseup="this.endChange"
+      @touchend="this.endChange"
     >
+      <circle class="background" cx="50" cy="50" r="45" />
       <path
         :d="this.pathD"
         fill="transparent"
@@ -152,8 +164,8 @@ export default {
         :cx="this.end[0]"
         :cy="this.end[1]"
         r="5"
-        @mousedown="() => this.startChange()"
-        @touchstart="() => this.startChange()"
+        @mousedown="this.startChange"
+        @touchstart="this.startChange"
       />
     </svg>
 
@@ -167,7 +179,7 @@ export default {
         :max="this.max"
         :step="this.step"
         :value="this.value"
-        @change="(event) => this.onInputChange(event)"
+        @change="this.onInputChange"
       />
     </div>
   </div>
@@ -176,6 +188,7 @@ export default {
 <style scoped>
 svg {
   aspect-ratio: 1;
+  border-radius: 50%;
 }
 
 svg path {
@@ -185,5 +198,9 @@ svg path {
 
 svg circle {
   fill: var(--primary);
+}
+
+svg circle.background {
+  fill: var(--secondary-background);
 }
 </style>
