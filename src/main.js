@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Ivan Zadvornov
+// Copyright (c) 2021-2022 Ivan Teplov
 
 import { createApp } from "vue"
 import App from "./App.vue"

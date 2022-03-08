@@ -21,7 +21,7 @@
     "type": "git",
     "url": "git+https://github.com/ivteplo/pomodo.git"
   },
-  "author": "Ivan Zadvornov",
+  "author": "Ivan Teplov <iteplov7@gmail.com>",
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/ivteplo/pomodo/issues"
