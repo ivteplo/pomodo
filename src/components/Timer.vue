@@ -8,7 +8,7 @@ import CircularArc from "./CircularArc.vue"
 import twoDigitNumber from "../utils/twoDigitNumber"
 
 export default {
-  expose: ["duration", "start", "stop", "onTick"],
+  expose: ["timerDuration", "timeLeft", "start", "stop", "onTick"],
   emits: ["timerEnd"],
   props: {
     min: {
@@ -32,36 +32,53 @@ export default {
   data() {
     return {
       // duration in seconds
-      duration: this.initialDuration,
+      timerDuration: this.initialDuration,
+      timeLeft: null,
       hasStarted: false,
     }
   },
-  computed: {
-    durationString() {
-      const minutes = Math.floor(this.duration / 60)
-      const seconds = Math.floor(this.duration % 60)
+  methods: {
+    timeString(time) {
+      const minutes = Math.floor(time / 60)
+      const seconds = Math.floor(time % 60)
 
       return [...twoDigitNumber(minutes), ":", ...twoDigitNumber(seconds)].join(
         ""
       )
     },
-  },
-  methods: {
     onTick(deltaTime) {
-      // deltaTime is in ms
-      this.duration = Math.max(0, this.duration - deltaTime / 1000)
+      if (!this.hasStarted) return
 
-      if (this.duration === 0) {
-        this.hasStarted = false
+      // deltaTime is in ms
+      this.timeLeft = Math.max(0, this.timeLeft - deltaTime / 1000)
+
+      if (this.timeLeft === 0) {
+        this.stop()
         this.$emit("timerEnd")
       }
     },
     start() {
+      if (this.hasStarted) return
+
+      this.timeLeft = this.timerDuration
       this.hasStarted = true
     },
     stop() {
+      if (!this.hasStarted) return
+
       this.hasStarted = false
-      this.duration = this.initialDuration
+      this.timeLeft = null
+    },
+    onTimerDurationChange({ value }) {
+      this.timerDuration = Math.round(value / this.step) * this.step * 60
+    },
+  },
+  computed: {
+    shownTime() {
+      return this.hasStarted ? this.timeLeft : this.timerDuration
+    },
+    timerValueTitle() {
+      return this.hasStarted ? "Time left" : "Timer duration in minutes"
     },
   },
 }
@@ -74,17 +91,13 @@ export default {
       :min="this.min"
       :max="this.max"
       :step="this.step"
-      :value="+this.duration / 60"
+      :value="+shownTime / 60"
       :showCircleOnEnd="!this.hasStarted"
-      :inputLabel="'Timer duration in minutes'"
-      @change="
-        ({ value }) => {
-          this.duration = Math.round(value / this.step) * this.step * 60
-        }
-      "
+      inputLabel="Timer duration in minutes"
+      @change="this.onTimerDurationChange"
     />
-    <p class="TimerValue" title="Timer duration in minutes">
-      {{ this.durationString }}
+    <p class="TimerValue" :title="this.timerValueTitle">
+      {{ this.timeString(shownTime) }}
     </p>
   </div>
 </template>

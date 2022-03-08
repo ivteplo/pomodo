@@ -86,8 +86,10 @@ export default {
     onChange(event) {
       if (!this.isBeingChanged) return
 
+      const clickInfo = event.touches ? event.touches[0] : event
+
       const element = this.$refs.svg
-      const clickPosition = [event.pageX, event.pageY]
+      const clickPosition = [clickInfo.pageX, clickInfo.pageY]
 
       // Position and size of SVG
       const svgInfo = element.getBoundingClientRect()
@@ -165,7 +167,7 @@ export default {
         :cy="this.end[1]"
         r="5"
         @mousedown="this.startChange"
-        @touchstart="this.startChange"
+        @touchstart.prevent="this.startChange"
       />
     </svg>
 

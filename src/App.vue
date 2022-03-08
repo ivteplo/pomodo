@@ -11,6 +11,14 @@ import timerWorkerURL from "./workers/timerWorker.js?url"
 
 export default {
   expose: ["startTimer", "stopTimer"],
+
+  data() {
+    return {
+      timerHasStarted: false,
+      timerWorker: null,
+    }
+  },
+
   beforeMount() {
     this.timerWorker = new Worker(timerWorkerURL)
 
@@ -19,36 +27,40 @@ export default {
         case "tick":
           return this.onTick(event.data.deltaTime)
         default:
-          console.error("Unexpected message from timer worker", event.data)
+          console.error("Unknown timer worker message", event.data)
       }
     })
   },
   beforeUnmount() {
     this.timerWorker.postMessage("stopTimer")
   },
+
   methods: {
     startTimer() {
-      this.$refs.timer.duration = 5
-      this.$refs.timer.start()
       this.timerHasStarted = true
-      this.timerWorker.postMessage("startTimer")
     },
     stopTimer(stoppedManually = false) {
       if (!stoppedManually) this.$refs.yooSound.play()
 
-      this.$refs.timer.stop()
       this.timerHasStarted = false
-      this.timerWorker.postMessage("stopTimer")
     },
     onTick(deltaTime) {
       this.$refs.timer.onTick(deltaTime)
     },
   },
-  data() {
-    return {
-      timerHasStarted: false,
-      timerWorker: null,
-    }
+  watch: {
+    timerHasStarted: {
+      handler(started) {
+        if (started) {
+          this.$refs.timer?.start()
+          this.timerWorker?.postMessage("startTimer")
+        } else {
+          this.$refs.timer?.stop()
+          this.timerWorker?.postMessage("stopTimer")
+        }
+      },
+      immediate: true,
+    },
   },
 }
 </script>

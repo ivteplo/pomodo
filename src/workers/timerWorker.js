@@ -1,28 +1,33 @@
 // Copyright (c) 2021-2022 Ivan Teplov
 
-let intervalID
-let lastTick
+let isRunning = false
+let lastUpdate
 
 function startTimer() {
-  if (intervalID) return
+  if (isRunning) return
 
-  lastTick = Date.now()
-  intervalID = setInterval(tick, 200)
+  isRunning = true
+  lastUpdate = Date.now()
+  tick()
 }
 
 function tick() {
-  const deltaTime = Date.now() - lastTick
-  lastTick = Date.now()
+  const now = Date.now()
+  const deltaTime = now - lastUpdate
+  lastUpdate = now
 
   self.postMessage({
     action: "tick",
     deltaTime,
   })
+
+  if (isRunning) {
+    requestAnimationFrame(tick)
+  }
 }
 
 function stopTimer() {
-  clearInterval(intervalID)
-  intervalID = undefined
+  isRunning = false
 }
 
 self.addEventListener("message", (event) => {

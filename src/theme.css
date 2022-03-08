@@ -14,16 +14,20 @@
   --gray: #444;
   --primary: #f14b6f;
   --secondary: #f8aebe;
+
+  overscroll-behavior: none;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #111111;
     --transparent-background: #111111f0;
+    --secondary-background: #222;
     --foreground: #ffffff;
     --divider: #333;
     --gray: #ccc;
-    --primary: #f14b6f;
+    --primary: #cc264a;
+    --secondary: #8d394b;
   }
 }
 

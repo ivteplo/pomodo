@@ -9,6 +9,7 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
+    "localforage": "^1.10.0",
     "vue": "^3.0.5"
   },
   "devDependencies": {
