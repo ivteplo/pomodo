@@ -37,33 +37,25 @@ export default {
 <template>
   <div class="TimerInput">
     <CircularArc
-      :max="this.max - this.min"
-      :value="+this.value - this.min"
+      class="CircularArc"
+      :min="this.min"
+      :max="this.max"
+      :step="this.step"
+      :value="+this.value"
       :showCircleOnEnd="true"
+      :inputLabel="'Timer duration in minutes'"
       @change="
         ({ value }) => {
-          this.value = Math.round(value / this.step) * this.step + this.min
+          this.value = Math.round(value / this.step) * this.step
         }
       "
     />
-    <section>
-      <p>Value: {{ this.value }}</p>
-      <input
-        type="range"
-        min="10"
-        max="120"
-        step="5"
-        :value="this.value"
-        @input="(event) => (this.value = event.currentTarget.value)"
-      />
-    </section>
+    <p>Value: {{ this.value }}</p>
   </div>
 </template>
 
 <style scoped>
-svg {
-  aspect-ratio: 1;
+.CircularArc {
   min-width: 15rem;
-  color: var(--primary);
 }
 </style>

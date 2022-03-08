@@ -8,8 +8,11 @@ export default {
   expose: ["isBeingChanged"],
   emits: ["change"],
   props: {
+    min: Number,
     max: Number,
     value: Number,
+    step: Number,
+    inputLabel: String,
     showCircleOnEnd: {
       type: Boolean,
       default: false,
@@ -31,7 +34,7 @@ export default {
       return vector.add(this.center, [0, -this.radius])
     },
     angle() {
-      return (this._value / this.max) * 2 * Math.PI
+      return ((this._value - this.min) / (this.max - this.min)) * 2 * Math.PI
     },
     end() {
       return vector.add(this.center, [
@@ -101,46 +104,73 @@ export default {
         angle += 1.5 * Math.PI
       }
 
-      let newValue = Math.round(map(angle, 0, 2 * Math.PI, 0, this.max))
-      newValue = Math.max(0, newValue)
+      let newValue = Math.round(map(angle, 0, 2 * Math.PI, this.min, this.max))
+      newValue = Math.max(this.min, newValue)
 
       if (newValue === this._value) return
 
-      if (Math.abs(newValue - this._value) <= this.max / 2) {
+      if (Math.abs(newValue - this._value) <= (this.max - this.min) / 2) {
         this._value = newValue
         this.$emit("change", { value: newValue })
       }
+    },
+    onInputChange(event) {
+      const value = Math.round(
+        Math.max(0, Math.min(this.max, event.target.value))
+      )
+
+      event.target.value = value
+      this._value = value
+
+      this.$emit("change", { value })
     },
   },
 }
 </script>
 
 <template>
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 100 100"
-    ref="svg"
-    @mousemove="(event) => this.onChange(event)"
-    @touchmove="(event) => this.onChange(event)"
-    @mouseup="() => this.endChange()"
-    @touchend="() => this.endChange()"
-  >
-    <path
-      :d="this.pathD"
-      fill="transparent"
-      stroke="currentColor"
-      stroke-width="4"
-      stroke-linecap="round"
-    />
-    <circle
-      v-if="this.showCircleOnEnd"
-      :cx="this.end[0]"
-      :cy="this.end[1]"
-      r="5"
-      @mousedown="() => this.startChange()"
-      @touchstart="() => this.startChange()"
-    />
-  </svg>
+  <div class="CircularArc">
+    <svg
+      aria-hidden="true"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 100 100"
+      ref="svg"
+      @mousemove="(event) => this.onChange(event)"
+      @touchmove="(event) => this.onChange(event)"
+      @mouseup="() => this.endChange()"
+      @touchend="() => this.endChange()"
+    >
+      <path
+        :d="this.pathD"
+        fill="transparent"
+        stroke="currentColor"
+        stroke-width="4"
+        stroke-linecap="round"
+      />
+      <circle
+        v-if="this.showCircleOnEnd"
+        :cx="this.end[0]"
+        :cy="this.end[1]"
+        r="5"
+        @mousedown="() => this.startChange()"
+        @touchstart="() => this.startChange()"
+      />
+    </svg>
+
+    <div class="ScreenReaderOnly" v-if="this.showCircleOnEnd">
+      <label for="input">{{ this.inputLabel }}</label>
+      <input
+        id="input"
+        class="ScreenReaderOnly"
+        type="range"
+        :min="this.min"
+        :max="this.max"
+        :step="this.step"
+        :value="this.value"
+        @change="(event) => this.onInputChange(event)"
+      />
+    </div>
+  </div>
 </template>
 
 <style scoped>

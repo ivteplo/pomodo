@@ -8,6 +8,7 @@
 :root {
   --background: #ffffff;
   --transparent-background: #fffffff0;
+  --secondary-background: #eee;
   --foreground: #000000;
   --divider: #cccccc;
   --gray: #444;
@@ -171,4 +172,12 @@ button.gray:not(:disabled) {
 .center {
   justify-content: center;
   align-items: center;
+}
+
+.ScreenReaderOnly {
+  width: 1px;
+  height: 1px;
+  position: fixed;
+  left: -100vw;
+  top: -100vh;
 }
