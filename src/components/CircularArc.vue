@@ -37,7 +37,7 @@ export default {
       return vector.add(this.center, [0, -this.radius])
     },
     angle() {
-      return ((this._value - this.min) / (this.max - this.min)) * 2 * Math.PI
+      return (this._value / this.max) * 2 * Math.PI
     },
     end() {
       return vector.add(this.center, [
@@ -108,12 +108,12 @@ export default {
         angle += 1.5 * Math.PI
       }
 
-      let newValue = Math.round(map(angle, 0, 2 * Math.PI, this.min, this.max))
+      let newValue = Math.round(map(angle, 0, 2 * Math.PI, 0, this.max))
       newValue = Math.max(this.min, newValue)
 
       if (newValue === this._value) return
 
-      if (Math.abs(newValue - this._value) <= (this.max - this.min) / 2) {
+      if (Math.abs(newValue - this._value) <= this.max / 2) {
         this._value = newValue
         this.$emit("change", { value: newValue })
       }

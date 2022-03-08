@@ -6,20 +6,45 @@ import Timer from "./components/Timer.vue"
 </script>
 
 <script>
+import timerWorkerURL from "./workers/timerWorker.js?url"
+
 export default {
+  expose: ["startTimer", "stopTimer"],
+  beforeMount() {
+    this.timerWorker = new Worker(timerWorkerURL)
+
+    this.timerWorker.addEventListener("message", (event) => {
+      switch (event.data?.action) {
+        case "tick":
+          return this.onTick(event.data.deltaTime)
+        default:
+          console.error("Unexpected message from timer worker", event.data)
+      }
+    })
+  },
+  beforeUnmount() {
+    this.timerWorker.postMessage("stopTimer")
+  },
   methods: {
     startTimer() {
+      this.$refs.timer.duration = 5
       this.$refs.timer.start()
       this.timerHasStarted = true
+      this.timerWorker.postMessage("startTimer")
     },
     stopTimer() {
       this.$refs.timer.stop()
       this.timerHasStarted = false
+      this.timerWorker.postMessage("stopTimer")
+    },
+    onTick(deltaTime) {
+      this.$refs.timer.onTick(deltaTime)
     },
   },
   data() {
     return {
       timerHasStarted: false,
+      timerWorker: null,
     }
   },
 }
@@ -28,7 +53,7 @@ export default {
 <template>
   <div class="App fill column">
     <Header />
-    <Timer ref="timer" />
+    <Timer ref="timer" @timerEnd="this.stopTimer" />
 
     <button
       type="button"

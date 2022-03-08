@@ -39,7 +39,7 @@ export default {
   computed: {
     durationString() {
       const minutes = Math.floor(this.duration / 60)
-      const seconds = this.duration % 60
+      const seconds = Math.floor(this.duration % 60)
 
       return [...twoDigitNumber(minutes), ":", ...twoDigitNumber(seconds)].join(
         ""
@@ -48,9 +48,10 @@ export default {
   },
   methods: {
     onTick(deltaTime) {
-      this.duration -= deltaTime
+      // deltaTime is in ms
+      this.duration = Math.max(0, this.duration - deltaTime / 1000)
 
-      if (this.duration <= 0) {
+      if (this.duration === 0) {
         this.hasStarted = false
         this.$emit("timerEnd")
       }
