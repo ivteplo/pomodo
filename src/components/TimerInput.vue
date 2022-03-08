@@ -27,14 +27,25 @@ export default {
   data() {
     return {
       value: this.defaultValue,
+      isMouseDown: false,
     }
   },
+  methods: {},
 }
 </script>
 
 <template>
   <div class="TimerInput">
-    <CircularArc :max="this.max" :value="+this.value" />
+    <CircularArc
+      :max="this.max - this.min"
+      :value="+this.value - this.min"
+      :showCircleOnEnd="true"
+      @change="
+        ({ value }) => {
+          this.value = Math.round(value / this.step) * this.step + this.min
+        }
+      "
+    />
     <section>
       <p>Value: {{ this.value }}</p>
       <input

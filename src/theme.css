@@ -12,6 +12,7 @@
   --divider: #cccccc;
   --gray: #444;
   --primary: #f14b6f;
+  --secondary: #f8aebe;
 }
 
 @media (prefers-color-scheme: dark) {
