@@ -1,12 +1,14 @@
 // Copyright (c) 2021-2022 Ivan Teplov
 
+<script setup>
+  import Header from "./components/Header.vue"
+  import Timer from "./components/Timer.vue"
+</script>
+
 <template>
   <div class="App fill column">
-    <header class="column">
-      <h1>Pomodo</h1>
-    </header>
-
-    <p>TODO</p>
+    <Header />
+    <Timer :minutes="25" :seconds="0" />
   </div>
 </template>
 
