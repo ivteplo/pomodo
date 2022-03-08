@@ -3,6 +3,7 @@
 <script setup>
 import Header from "./components/Header.vue"
 import Timer from "./components/Timer.vue"
+import yooSoundPath from "./assets/sounds/yoo.mp3?url"
 </script>
 
 <script>
@@ -32,7 +33,9 @@ export default {
       this.timerHasStarted = true
       this.timerWorker.postMessage("startTimer")
     },
-    stopTimer() {
+    stopTimer(stoppedManually = false) {
+      if (!stoppedManually) this.$refs.yooSound.play()
+
       this.$refs.timer.stop()
       this.timerHasStarted = false
       this.timerWorker.postMessage("stopTimer")
@@ -52,6 +55,8 @@ export default {
 
 <template>
   <div class="App fill column">
+    <audio :src="yooSoundPath" ref="yooSound" />
+
     <Header />
     <Timer ref="timer" @timerEnd="this.stopTimer" />
 
@@ -67,7 +72,7 @@ export default {
     <button
       type="button"
       class="gray"
-      @click="this.stopTimer"
+      @click="() => this.stopTimer(true)"
       v-if="this.timerHasStarted"
     >
       Cancel
