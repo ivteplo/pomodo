@@ -69,9 +69,11 @@ export default {
       this.timerHasStarted = true
     },
     stopTimer(stoppedManually = false) {
-      if (!stoppedManually) this.$refs.yooSound.play()
+      if (!stoppedManually) {
+        this.$refs.yooSound.play()
+        this.showYooModal = true
+      }
 
-      this.showYooModal = true
       this.timerHasStarted = false
     },
     onTick(deltaTime) {
