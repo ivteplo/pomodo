@@ -1,124 +1,98 @@
 // Copyright (c) 2021-2022 Ivan Teplov
 
 <script setup>
-import CircularArc from "./CircularArc.vue"
+import TimerDisplay from "./TimerDisplay.vue"
+import yooSoundPath from "../assets/sounds/yoo.mp3?url"
 </script>
 
 <script>
-import twoDigitNumber from "../utils/twoDigitNumber"
+import timerWorkerURL from "../workers/timerWorker.js?url"
 
 export default {
-  expose: ["timerDuration", "timeLeft", "start", "stop", "onTick"],
-  emits: ["timerEnd"],
-  props: {
-    min: {
-      type: Number,
-      default: 10,
-    },
-    max: {
-      type: Number,
-      default: 120,
-    },
-    step: {
-      type: Number,
-      default: 5,
-    },
-    // duration in seconds
-    initialDuration: {
-      type: Number,
-      default: 25 * 60,
-    },
-  },
+  expose: ["startTimer", "stopTimer"],
+
   data() {
     return {
-      // duration in seconds
-      timerDuration: this.initialDuration,
-      timeLeft: null,
-      hasStarted: false,
+      timerHasStarted: false,
+      timerWorker: null,
     }
   },
-  methods: {
-    timeString(time) {
-      const minutes = Math.floor(time / 60)
-      const seconds = Math.floor(time % 60)
 
-      return [...twoDigitNumber(minutes), ":", ...twoDigitNumber(seconds)].join(
-        ""
-      )
+  beforeMount() {
+    this.timerWorker = new Worker(timerWorkerURL)
+
+    this.timerWorker.addEventListener("message", (event) => {
+      switch (event.data?.action) {
+        case "tick":
+          return this.onTick(event.data.deltaTime)
+        default:
+          console.error("Unknown timer worker message", event.data)
+      }
+    })
+  },
+  beforeUnmount() {
+    this.timerWorker.postMessage("stopTimer")
+  },
+
+  methods: {
+    startTimer() {
+      this.timerHasStarted = true
+    },
+    stopTimer(stoppedManually = false) {
+      if (!stoppedManually) this.$refs.yooSound.play()
+
+      this.timerHasStarted = false
     },
     onTick(deltaTime) {
-      if (!this.hasStarted) return
-
-      // deltaTime is in ms
-      this.timeLeft = Math.max(0, this.timeLeft - deltaTime / 1000)
-
-      if (this.timeLeft === 0) {
-        this.stop()
-        this.$emit("timerEnd")
-      }
-    },
-    start() {
-      if (this.hasStarted) return
-
-      this.timeLeft = this.timerDuration
-      this.hasStarted = true
-    },
-    stop() {
-      if (!this.hasStarted) return
-
-      this.hasStarted = false
-      this.timeLeft = null
-    },
-    onTimerDurationChange({ value }) {
-      this.timerDuration = Math.round(value / this.step) * this.step * 60
+      this.$refs.timer.onTick(deltaTime)
     },
   },
-  computed: {
-    shownTime() {
-      return this.hasStarted ? this.timeLeft : this.timerDuration
-    },
-    timerValueTitle() {
-      return this.hasStarted ? "Time left" : "Timer duration in minutes"
+  watch: {
+    timerHasStarted: {
+      handler(started) {
+        if (started) {
+          this.$refs.timer?.start()
+          this.timerWorker?.postMessage("startTimer")
+        } else {
+          this.$refs.timer?.stop()
+          this.timerWorker?.postMessage("stopTimer")
+        }
+      },
+      immediate: true,
     },
   },
 }
 </script>
 
 <template>
-  <div class="Timer">
-    <CircularArc
-      class="CircularArc"
-      :min="this.min"
-      :max="this.max"
-      :step="this.step"
-      :value="+shownTime / 60"
-      :showCircleOnEnd="!this.hasStarted"
-      inputLabel="Timer duration in minutes"
-      @change="this.onTimerDurationChange"
-    />
-    <p class="TimerValue" :title="this.timerValueTitle">
-      {{ this.timeString(shownTime) }}
-    </p>
-  </div>
+  <section class="Timer column">
+    <audio :src="yooSoundPath" ref="yooSound" />
+
+    <TimerDisplay ref="timer" @timerEnd="this.stopTimer" />
+
+    <button
+      type="button"
+      class="primary"
+      @click="this.startTimer"
+      v-if="!this.timerHasStarted"
+    >
+      Start
+    </button>
+
+    <button
+      type="button"
+      class="gray"
+      @click="() => this.stopTimer(true)"
+      v-if="this.timerHasStarted"
+    >
+      Cancel
+    </button>
+  </section>
 </template>
 
 <style scoped>
 .Timer {
-  position: relative;
-  border-radius: 50%;
-}
-
-.CircularArc {
-  min-width: 15rem;
-}
-
-.TimerValue {
-  position: absolute;
-  pointer-events: none;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 3rem;
-  font-weight: 500;
+  gap: 2rem;
+  align-items: center;
 }
 </style>

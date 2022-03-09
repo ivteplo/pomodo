@@ -14,8 +14,15 @@
   --gray: #444;
   --primary: #f14b6f;
   --secondary: #f8aebe;
+  --transition-duration: 0.3s;
 
   overscroll-behavior: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --transition-duration: 0s;
+  }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -60,7 +67,8 @@ h2,
 h3,
 a,
 button,
-label {
+label,
+span {
   user-select: none;
 }
 
@@ -78,12 +86,38 @@ h3 {
 }
 
 a {
-  color: var(--primary);
+  color: var(--gray);
   text-decoration: none;
+  position: relative;
+  transition: color var(--transition-duration) ease;
 }
 
-a:hover {
-  text-decoration: underline;
+a::after {
+  content: "";
+  position: absolute;
+  bottom: -0.25em;
+  left: 50%;
+  right: 50%;
+  height: 0.0625em;
+  z-index: -1;
+  border-radius: 0.5em;
+  background-color: currentColor;
+  visibility: hidden;
+  transition: var(--transition-duration) ease;
+}
+
+a:hover,
+a:active,
+a:focus {
+  color: var(--primary);
+}
+
+a:hover::after,
+a:active::after,
+a:focus::after {
+  left: -0.25em;
+  right: -0.25em;
+  visibility: visible;
 }
 
 label {
