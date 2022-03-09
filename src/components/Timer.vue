@@ -2,6 +2,7 @@
 
 <script setup>
 import TimerDisplay from "./TimerDisplay.vue"
+import Alert from "./Alert.vue"
 import yooSoundPath from "../assets/sounds/yoo.mp3?url"
 </script>
 
@@ -17,6 +18,7 @@ export default {
       timerHasStarted: false,
       timerWorker: null,
       elapsedFromLastSave: 0,
+      showYooModal: false,
     }
   },
 
@@ -69,6 +71,7 @@ export default {
     stopTimer(stoppedManually = false) {
       if (!stoppedManually) this.$refs.yooSound.play()
 
+      this.showYooModal = true
       this.timerHasStarted = false
     },
     onTick(deltaTime) {
@@ -90,6 +93,9 @@ export default {
       timer.saveState(state).catch(console.error)
 
       this.elapsedFromLastSave = 0
+    },
+    hideYooModal() {
+      this.showYooModal = false
     },
   },
   watch: {
@@ -131,6 +137,18 @@ export default {
     >
       Cancel
     </button>
+
+    <Alert :isOpen="this.showYooModal" @hide="this.hideYooModal">
+      <template v-slot:body>
+        <h2>Yoo!</h2>
+        <p>You've finished your pomodoro! Now it's time to relax for a bit.</p>
+      </template>
+      <template v-slot:actions>
+        <button type="button" class="gray" @click="this.hideYooModal">
+          OK
+        </button>
+      </template>
+    </Alert>
   </section>
 </template>
 

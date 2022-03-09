@@ -8,13 +8,7 @@ import CircularArc from "./CircularArc.vue"
 import twoDigitNumber from "../utils/twoDigitNumber"
 
 export default {
-  expose: [
-    "timerDuration",
-    "timeLeft",
-    "start",
-    "stop",
-    "onTick",
-  ],
+  expose: ["timerDuration", "timeLeft", "start", "stop", "onTick"],
   emits: ["timerEnd"],
   props: {
     min: {
