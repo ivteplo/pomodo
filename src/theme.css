@@ -8,7 +8,7 @@
 :root {
   --background: #ffffff;
   --transparent-background: #fffffff0;
-  --secondary-background: #eee;
+  --secondary-background: #e8e8e8;
   --foreground: #000000;
   --divider: #cccccc;
   --gray: #444;
@@ -29,7 +29,7 @@
   :root {
     --background: #111111;
     --transparent-background: #111111f0;
-    --secondary-background: #222;
+    --secondary-background: #181818;
     --foreground: #ffffff;
     --divider: #333;
     --gray: #ccc;
