@@ -8,20 +8,12 @@ import Alert from "./components/Alert.vue"
 </script>
 
 <script>
-let newWorker
-
-const skipWaiting = () => {
-  if (!newWorker) return
-
-  newWorker.postMessage({
-    action: "skipWaiting",
-  })
-}
-
 export default {
+  name: "App",
   data() {
     return {
       isUpdateAlertShown: false,
+      newWorker: null,
     }
   },
   mounted() {
@@ -31,6 +23,13 @@ export default {
     hideUpdateAlert() {
       this.isUpdateAlertShown = false
     },
+    skipWaiting() {
+      if (!newWorker) return
+
+      newWorker.postMessage({
+        action: "skipWaiting",
+      })
+    },
     async checkForUpdates() {
       if (!navigator.serviceWorker) return
 
@@ -39,14 +38,12 @@ export default {
       registration?.addEventListener("updatefound", () => {
         const installingWorker = registration.installing
 
-        if (installingWorker == null) {
-          return
-        }
+        if (installingWorker == null) return
 
         installingWorker.addEventListener("statechange", () => {
           if (installingWorker.state === "installed") {
             if (navigator.serviceWorker.controller) {
-              newWorker = installingWorker
+              this.newWorker = installingWorker
 
               // The previous service worker will still serve
               // the older content until all client tabs are closed
@@ -73,7 +70,7 @@ export default {
     <Timer />
     <Footer />
 
-    <Alert @hide="this.hideUpdateAlert" :isOpen="this.isUpdateAlertShown">
+    <Alert @hide="hideUpdateAlert" :isOpen="isUpdateAlertShown">
       <template v-slot:body>
         <h2>Update</h2>
         <p>
@@ -83,8 +80,8 @@ export default {
       </template>
 
       <template v-slot:actions>
-        <button type="button" @click="this.skipWaiting">Reload</button>
-        <button type="button" class="gray" @click="this.hideUpdateAlert">
+        <button type="button" @click="skipWaiting">Reload</button>
+        <button type="button" class="gray" @click="hideUpdateAlert">
           Cancel
         </button>
       </template>

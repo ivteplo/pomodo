@@ -5,6 +5,7 @@ import * as vector from "../utils/vector"
 import { map } from "../utils/map"
 
 export default {
+  name: "CircularArc",
   expose: ["isBeingChanged"],
   emits: ["change"],
   props: {
@@ -148,40 +149,40 @@ export default {
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 100 100"
       ref="svg"
-      @mousemove="this.onChange"
-      @touchmove="this.onChange"
-      @mouseup="this.endChange"
-      @touchend="this.endChange"
+      @mousemove="onChange"
+      @touchmove="onChange"
+      @mouseup="endChange"
+      @touchend="endChange"
     >
       <circle class="background" cx="50" cy="50" r="45" />
       <path
-        :d="this.pathD"
+        :d="pathD"
         fill="transparent"
         stroke="currentColor"
         stroke-width="4"
         stroke-linecap="round"
       />
       <circle
-        v-if="this.showCircleOnEnd"
-        :cx="this.end[0]"
-        :cy="this.end[1]"
+        v-if="showCircleOnEnd"
+        :cx="end[0]"
+        :cy="end[1]"
         r="5"
-        @mousedown="this.startChange"
-        @touchstart.prevent="this.startChange"
+        @mousedown="startChange"
+        @touchstart.prevent="startChange"
       />
     </svg>
 
-    <div class="ScreenReaderOnly" v-if="this.showCircleOnEnd">
+    <div class="ScreenReaderOnly" v-if="showCircleOnEnd">
       <label for="input">{{ this.inputLabel }}</label>
       <input
         id="input"
         class="ScreenReaderOnly"
         type="range"
-        :min="this.min"
-        :max="this.max"
-        :step="this.step"
-        :value="this.value"
-        @change="this.onInputChange"
+        :min="min"
+        :max="max"
+        :step="step"
+        :value="value"
+        @change="onInputChange"
       />
     </div>
   </div>

@@ -13,6 +13,14 @@ const trimSlashes = (string) => {
 }
 
 export const joinPaths = (...paths) =>
-  (paths[0]?.charAt(0) === "/" ? "/" : "") + paths.map(trimSlashes).join("/")
+  // Prepend slash if the path should start with it
+  (paths[0]?.charAt(0) === "/" ? "/" : "") +
+  // And join paths
+  trimSlashes(
+    paths.reduce((prev, next) => {
+      next = trimSlashes(next)
+      return prev + (next ? "/" + next : "")
+    }, "")
+  )
 
 export default joinPaths

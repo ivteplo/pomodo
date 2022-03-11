@@ -31,6 +31,6 @@ function registerServiceWorker() {
     .catch(console.error)
 }
 
-if (import.meta.PROD) {
+if (import.meta.env.PROD) {
   registerServiceWorker()
 }

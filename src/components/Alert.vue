@@ -2,6 +2,7 @@
 
 <script>
 export default {
+  name: "Alert",
   emits: ["hide"],
   props: {
     isOpen: Boolean,
@@ -21,8 +22,8 @@ export default {
 <template>
   <transition name="fade">
     <div class="Alert" v-if="isOpen">
-      <div class="AlertOverlay" @click="this.hide" />
-      <div class="AlertContents column" :role="this.role">
+      <div class="AlertOverlay" @click="hide" />
+      <div class="AlertContents column" :role="role">
         <div class="AlertContentsInformation column">
           <slot name="body" />
         </div>

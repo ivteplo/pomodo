@@ -1,5 +1,11 @@
 // Copyright (c) 2021-2022 Ivan Teplov
 
+<script>
+export default {
+  name: "Header",
+}
+</script>
+
 <template>
   <header class="column">
     <h1>Pomodo</h1>

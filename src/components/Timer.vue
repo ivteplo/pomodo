@@ -10,7 +10,10 @@ import yooSoundPath from "../assets/sounds/yoo.mp3?url"
 import TimerWorker from "../workers/timerWorker.js?worker"
 import * as timer from "../storage/timerStorage"
 
+let timerWorker
+
 export default {
+  name: "Timer",
   expose: ["startTimer", "stopTimer"],
 
   data() {
@@ -23,9 +26,9 @@ export default {
   },
 
   beforeMount() {
-    this.timerWorker = new TimerWorker()
+    timerWorker = new TimerWorker()
 
-    this.timerWorker.addEventListener("message", (event) => {
+    timerWorker.addEventListener("message", (event) => {
       switch (event.data?.action) {
         case "tick":
           return this.onTick(event.data.deltaTime)
@@ -43,13 +46,13 @@ export default {
     const timeLeft = state.timeLeft - (Date.now() - state.timeStamp) / 1000
 
     // Save initial timer duration
-    const { timerDuration } = this.$refs.timer
+    const { timerDuration } = this.$refs.timerDisplay
 
     // Set timerDuration to equal to timeLeft,
-    // since when calling this.$refs.timer.start(),
-    // the value of this.$refs.timer.timeLeft is set
-    // to this.$refs.timer.timerDuration
-    this.$refs.timer.timerDuration = timeLeft
+    // since when calling this.$refs.timerDisplay.start(),
+    // the value of this.$refs.timerDisplay.timeLeft is set
+    // to this.$refs.timerDisplay.timerDuration
+    this.$refs.timerDisplay.timerDuration = timeLeft
 
     // Start the timer
     this.startTimer()
@@ -57,11 +60,11 @@ export default {
     // Reset timerDuration property after the timer
     // has started
     setTimeout(() => {
-      this.$refs.timer.timerDuration = timerDuration
+      this.$refs.timerDisplay.timerDuration = timerDuration
     }, 0)
   },
   beforeUnmount() {
-    this.timerWorker.postMessage("stopTimer")
+    timerWorker.postMessage("stopTimer")
   },
 
   methods: {
@@ -78,7 +81,7 @@ export default {
     },
     onTick(deltaTime) {
       this.elapsedFromLastSave += deltaTime
-      this.$refs.timer.onTick(deltaTime)
+      this.$refs.timerDisplay.onTick(deltaTime)
       this.saveState()
     },
     saveState(force = false) {
@@ -89,7 +92,7 @@ export default {
 
       const state = {
         isRunning: this.timerHasStarted,
-        timeLeft: this.$refs.timer.timeLeft,
+        timeLeft: this.$refs.timerDisplay.timeLeft,
       }
 
       timer.saveState(state).catch(console.error)
@@ -103,11 +106,11 @@ export default {
   watch: {
     timerHasStarted(started) {
       if (started) {
-        this.$refs.timer.start()
-        this.timerWorker.postMessage("startTimer")
+        this.$refs.timerDisplay.start()
+        timerWorker.postMessage("startTimer")
       } else {
-        this.$refs.timer.stop()
-        this.timerWorker.postMessage("stopTimer")
+        this.$refs.timerDisplay.stop()
+        timerWorker.postMessage("stopTimer")
       }
 
       this.saveState(true)
@@ -120,13 +123,13 @@ export default {
   <section class="Timer column">
     <audio :src="yooSoundPath" ref="yooSound" />
 
-    <TimerDisplay ref="timer" @timerEnd="this.stopTimer" />
+    <TimerDisplay ref="timerDisplay" @timerEnd="stopTimer" />
 
     <button
       type="button"
       class="primary"
-      @click="this.startTimer"
-      v-if="!this.timerHasStarted"
+      @click="startTimer"
+      v-if="!timerHasStarted"
     >
       Start
     </button>
@@ -134,21 +137,19 @@ export default {
     <button
       type="button"
       class="gray"
-      @click="() => this.stopTimer(true)"
-      v-if="this.timerHasStarted"
+      @click="() => stopTimer(true)"
+      v-if="timerHasStarted"
     >
       Cancel
     </button>
 
-    <Alert :isOpen="this.showYooModal" @hide="this.hideYooModal">
+    <Alert :isOpen="showYooModal" @hide="hideYooModal">
       <template v-slot:body>
         <h2>Yoo!</h2>
         <p>You've finished your pomodoro! Now it's time to relax for a bit.</p>
       </template>
       <template v-slot:actions>
-        <button type="button" class="gray" @click="this.hideYooModal">
-          OK
-        </button>
+        <button type="button" class="gray" @click="hideYooModal">OK</button>
       </template>
     </Alert>
   </section>

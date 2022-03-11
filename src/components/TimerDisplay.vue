@@ -8,6 +8,7 @@ import CircularArc from "./CircularArc.vue"
 import twoDigitNumber from "../utils/twoDigitNumber"
 
 export default {
+  name: "TimerDisplay",
   expose: ["timerDuration", "timeLeft", "start", "stop", "onTick"],
   emits: ["timerEnd"],
   props: {
@@ -88,17 +89,17 @@ export default {
   <div class="TimerDisplay">
     <CircularArc
       class="CircularArc"
-      :min="this.min"
-      :max="this.max"
-      :step="this.step"
+      :min="min"
+      :max="max"
+      :step="step"
       :value="+shownTime / 60"
-      :showCircleOnEnd="!this.hasStarted"
+      :showCircleOnEnd="!hasStarted"
       inputLabel="Timer duration in minutes"
-      @change="this.onTimerDurationChange"
+      @change="onTimerDurationChange"
     />
-    <p class="TimerValue row" :title="this.timerValueTitle">
+    <p class="TimerValue row" :title="timerValueTitle">
       <span
-        v-for="[index, value] of Object.entries(this.timeString(shownTime))"
+        v-for="[index, value] of Object.entries(timeString(shownTime))"
         v-bind:key="index"
       >
         {{ value }}
