@@ -7,7 +7,7 @@ import yooSoundPath from "../assets/sounds/yoo.mp3?url"
 </script>
 
 <script>
-import timerWorkerURL from "../workers/timerWorker.js?url"
+import TimerWorker from "../workers/timerWorker.js?worker"
 import * as timer from "../storage/timerStorage"
 
 export default {
@@ -23,7 +23,7 @@ export default {
   },
 
   beforeMount() {
-    this.timerWorker = new Worker(timerWorkerURL)
+    this.timerWorker = new TimerWorker()
 
     this.timerWorker.addEventListener("message", (event) => {
       switch (event.data?.action) {
@@ -37,7 +37,7 @@ export default {
   async mounted() {
     const state = await timer.getState()
 
-    if (!state.isRunning) return
+    if (!state?.isRunning) return
 
     // Calculate the current time on the timer
     const timeLeft = state.timeLeft - (Date.now() - state.timeStamp) / 1000
