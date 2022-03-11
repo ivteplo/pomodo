@@ -8,6 +8,7 @@ import yooSoundPath from "../assets/sounds/yoo.mp3?url"
 
 <script>
 import TimerWorker from "../workers/timerWorker.js?worker"
+import { setupNotifications, sendNotification } from "../utils/notifications"
 import * as timer from "../storage/timerStorage"
 
 let timerWorker
@@ -69,12 +70,17 @@ export default {
 
   methods: {
     startTimer() {
+      setupNotifications()
       this.timerHasStarted = true
     },
     stopTimer(stoppedManually = false) {
       if (!stoppedManually) {
         this.$refs.yooSound.play()
         this.showYooModal = true
+        sendNotification(
+          "Yoo!",
+          "You've finished the pomodoro! It's time to relax for a bit"
+        )
       }
 
       this.timerHasStarted = false

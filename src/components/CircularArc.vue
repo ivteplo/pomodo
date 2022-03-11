@@ -4,6 +4,8 @@
 import * as vector from "../utils/vector"
 import { map } from "../utils/map"
 
+let removeWindowEventListeners = () => {}
+
 export default {
   name: "CircularArc",
   expose: ["isBeingChanged"],
@@ -29,6 +31,9 @@ export default {
       isBeingChanged: false,
       _value: this.value,
     }
+  },
+  beforeUnmount() {
+    removeWindowEventListeners()
   },
   computed: {
     normal() {
@@ -79,10 +84,29 @@ export default {
   methods: {
     startChange() {
       this.isBeingChanged = true
+
+      const onChange = (e) => this.onChange(e)
+      const onEnd = () => this.endChange()
+
+      window.addEventListener("mousemove", onChange)
+      window.addEventListener("touchmove", onChange)
+
+      window.addEventListener("mouseup", onEnd)
+      window.addEventListener("touchend", onEnd)
+
+      removeWindowEventListeners = () => {
+        window.removeEventListener("mousemove", onEnd)
+        window.removeEventListener("touchmove", onEnd)
+
+        window.removeEventListener("mouseup", onEnd)
+        window.removeEventListener("touchend", onEnd)
+      }
     },
     endChange() {
       this.isBeingChanged = false
       this._value = this.value
+      removeWindowEventListeners()
+      removeWindowEventListeners = () => {}
     },
     onChange(event) {
       if (!this.isBeingChanged) return
@@ -149,10 +173,6 @@ export default {
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 100 100"
       ref="svg"
-      @mousemove="onChange"
-      @touchmove="onChange"
-      @mouseup="endChange"
-      @touchend="endChange"
     >
       <circle class="background" cx="50" cy="50" r="45" />
       <path
