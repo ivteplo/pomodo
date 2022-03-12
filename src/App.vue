@@ -24,9 +24,9 @@ export default {
       this.isUpdateAlertShown = false
     },
     skipWaiting() {
-      if (!newWorker) return
+      if (!this.newWorker) return
 
-      newWorker.postMessage({
+      this.newWorker.postMessage({
         action: "skipWaiting",
       })
     },
