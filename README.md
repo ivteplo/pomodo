@@ -1,5 +1,7 @@
 # Pomodo
 
+Minimalist pomodoro timer
+
 ![App preview](screenshots/desktop-light.png)
 
 _More screenshots are available [here](screenshots/)_
