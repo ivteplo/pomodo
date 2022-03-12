@@ -13,7 +13,7 @@ jobs:
       - name: Install and Build
         run: |
           npm ci
-          npm run build -- --base=/pomodo/
+          npm run build:github
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:

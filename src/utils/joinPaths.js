@@ -1,21 +1,26 @@
-// Copyright (c) 2021 Ivan Teplov
+// Copyright (c) 2021-2022 Ivan Teplov
 
-function trimSlashes(string) {
-  while (string && string[0] === "/") {
+const trimSlashes = (string) => {
+  if (string.charAt(0) === "/") {
     string = string.substring(1)
   }
 
-  while (string && string[string.length - 1] === "/") {
+  if (string.charAt(string.length - 1) === "/") {
     string = string.slice(0, -1)
   }
 
   return string
 }
 
-export function joinPaths(...paths) {
-  return paths.length === 0
-    ? ""
-    : "/" + trimSlashes(paths.map((path) => trimSlashes(path)).join("/"))
-}
+export const joinPaths = (...paths) =>
+  // Prepend slash if the path should start with it
+  (paths[0]?.charAt(0) === "/" ? "/" : "") +
+  // And join paths
+  trimSlashes(
+    paths.reduce((prev, next) => {
+      next = trimSlashes(next)
+      return prev + (next ? "/" + next : "")
+    }, "")
+  )
 
 export default joinPaths

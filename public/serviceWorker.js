@@ -1,20 +1,26 @@
-// Copyright (c) 2021 Ivan Teplov
+// Copyright (c) 2022 Ivan Teplov
 
-const cacheName = "v1.1.1"
+const cacheName = "pomodo@2.0.0"
+const filesToCache = ["index.html", "icons/ios/128.png"]
+
 const cacheKeeplist = [cacheName]
 
-const pathsToCache = ["index.html", "favicon.ico"]
+const log = function (message) {
+  console.log("[Service worker]", message)
+}
 
-// Function to cache main files
-// TODO: find a way to cache CSS and JavaScript files right after installation
 async function cacheBaseFiles() {
   // Open our cache
   const cache = await caches.open(cacheName)
+
+  log("Caching base files")
+
   // Add files to cache
-  await cache.addAll(pathsToCache)
+  await cache.addAll(filesToCache)
 }
 
 self.addEventListener("install", (event) => {
+  log("Install")
   event.waitUntil(cacheBaseFiles())
 })
 
@@ -27,6 +33,8 @@ async function deleteOldCaches() {
     keyList.map((key) => {
       // If cache should not be keeped
       if (cacheKeeplist.indexOf(key) === -1) {
+        log("Deleting old cache: " + key)
+
         // Delete the cache
         return caches.delete(key)
       }
@@ -35,6 +43,7 @@ async function deleteOldCaches() {
 }
 
 self.addEventListener("activate", (event) => {
+  log("Activate")
   event.waitUntil(deleteOldCaches())
 })
 
@@ -59,5 +68,12 @@ async function fetchRequest(request) {
 }
 
 self.addEventListener("fetch", (event) => {
+  log(`Fetch ${event.request.url}`)
   event.respondWith(fetchRequest(event.request))
+})
+
+self.addEventListener("message", (event) => {
+  if (event.data.action === "skipWaiting") {
+    self.skipWaiting()
+  }
 })
