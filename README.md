@@ -1,5 +1,17 @@
 # Pomodo
 
+![App preview](screenshots/desktop-light.png)
+
+_More screenshots are available [here](screenshots/)_
+
+## Features
+
+- Minimalist interface without distractions
+- Supports notifications
+- Has both light and dark mode
+- Works offline (as a PWA)
+- Accessible
+
 ## Development
 
 ### Prerequisites
