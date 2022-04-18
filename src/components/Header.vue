@@ -1,5 +1,9 @@
 // Copyright (c) 2021-2022 Ivan Teplov
 
+<script setup>
+import WideLogo from "../assets/logo/pomodo-wide-logo.svg"
+</script>
+
 <script>
 export default {
   name: "Header",
@@ -9,6 +13,7 @@ export default {
 <template>
   <header class="column">
     <h1>Pomodo</h1>
+    <WideLogo class="logo" aria-hidden="true" title="Pomodo" />
   </header>
 </template>
 
@@ -19,6 +24,10 @@ header {
 
 h1 {
   font-weight: 400;
-  text-transform: lowercase;
+  display: none;
+}
+
+.logo {
+  height: 3rem;
 }
 </style>
