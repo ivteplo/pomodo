@@ -1,0 +1,17 @@
+<!-- Copyright (c) 2022 Ivan Teplov -->
+<svg
+  viewBox="0 0 1024 1024"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <rect width="1024" height="1024" fill="#F14B6F" />
+  <path d="M245 1024V512" stroke="white" stroke-width="54" />
+  <circle cx="511.5" cy="512.5" r="266.5" stroke="white" stroke-width="54" />
+  <path
+    d="M429 511L484.299 565.806C484.688 566.191 485.314 566.192 485.704 565.809L594.5 459"
+    stroke="white"
+    stroke-opacity="0.5"
+    stroke-width="22"
+    stroke-linecap="round"
+  />
+</svg>
