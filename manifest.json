@@ -4,7 +4,7 @@
   "description": "Minimalist pomodoro timer",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#fff",
+  "background_color": "#f14b6f",
   "theme_color": "#f14b6f",
   "categories": ["productivity", "education"],
   "icons": [
