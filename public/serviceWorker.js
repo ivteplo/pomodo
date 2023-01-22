@@ -1,6 +1,6 @@
 // Copyright (c) 2022 Ivan Teplov
 
-const cacheName = "pomodo@2.0.2"
+const cacheName = "pomodo@2.1.0"
 const filesToCache = ["index.html", "icons/ios/128.png"]
 
 const cacheKeeplist = [cacheName]
