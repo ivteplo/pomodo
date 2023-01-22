@@ -8,12 +8,16 @@ export const setupNotifications = async () => {
   }
 }
 
-export const sendNotification = (title, description) => {
+export const sendNotification = ({ title, description, tag = undefined, onClick }) => {
   if (Notification.permission === "granted") {
-    new Notification(title, {
+    const notification = new Notification(title, {
       body: description,
       icon: joinPaths(import.meta.env.BASE_URL, "icons/ios/256.png"),
       sound: "default",
+      tag
     })
+
+    notification.addEventListener("click", onClick)
+    return notification
   }
 }

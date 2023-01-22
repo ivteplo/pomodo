@@ -12,6 +12,7 @@ import { setupNotifications, sendNotification } from "../utils/notifications"
 import * as timer from "../storage/timerStorage"
 
 let timerWorker
+const timerNotificationTag = "timer"
 
 export default {
   name: "Timer",
@@ -23,6 +24,7 @@ export default {
       timerWorker: null,
       elapsedFromLastSave: 0,
       showYooModal: false,
+      lastNotification: null
     }
   },
 
@@ -72,15 +74,21 @@ export default {
     startTimer() {
       setupNotifications()
       this.timerHasStarted = true
+      this.lastNotification?.close()
     },
     stopTimer(stoppedManually = false) {
       if (!stoppedManually) {
         this.$refs.yooSound.play()
         this.showYooModal = true
-        sendNotification(
-          "Yoo!",
-          "You've finished the pomodoro! It's time to relax for a bit"
-        )
+
+        this.lastNotification = sendNotification({
+          title: "Yoo!",
+          description: "You've finished the pomodoro! It's time to relax for a bit",
+          tag: timerNotificationTag,
+          onClick() {
+            window.focus()
+          }
+        })
       }
 
       this.timerHasStarted = false
